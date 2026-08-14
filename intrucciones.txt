@@ -18,3 +18,11 @@ que se vea un interfaz moderna, 3d con animaciones con desplazamientos , si tien
 
 
 Dejé activas las cuentas de prueba operador.test / supervisor.test (contraseñas Operador@Test123 / Supervisor@Test123) por si quieres entrar tú mismo a probarlo en el navegador antes de seguir — dime si prefieres que las borre.
+
+La contraseña del admin es literalmente esa: Admin@Simtrg2024 — no hay otra distinta "para" ella.
+
+Las credenciales completas para entrar al sistema son:
+
+Usuario: admin.simtrg
+Contraseña: Admin@Simtrg2024
+Esto está hardcodeado en simtrg-backend/src/infrastructure/database/seeds/admin.seed.ts — se crea automáticamente la primera vez que arranca el backend, si el usuario admin.simtrg no existe todavía.

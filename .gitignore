@@ -1,0 +1,27 @@
+# Claude Code (config local de sesión, no del proyecto)
+.claude/
+
+# Dependencias
+node_modules/
+
+# Variables de entorno
+.env
+.env.local
+.env.production
+
+# Build
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.sw?

@@ -1,0 +1,36 @@
+# Dependencias
+node_modules/
+npm-debug.log*
+
+# Build
+dist/
+build/
+
+# Variables de entorno (NUNCA commitear)
+.env
+.env.local
+.env.production
+
+# Uploads (datos de operaciones)
+uploads/
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+*.lcov
+
+# Logs
+logs/
+*.log

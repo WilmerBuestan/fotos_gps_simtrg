@@ -1,0 +1,74 @@
+# ============================================================
+# DOCKER COMPOSE - SIMTRG Stack Completo
+# Servicios: backend (NestJS) + postgres (PostgreSQL + PostGIS)
+# Despliegue en Intranet / servidor físico de la unidad
+# ============================================================
+
+
+services:
+
+  # ---- Base de Datos: PostgreSQL con extensión PostGIS ----
+  postgres:
+    image: postgis/postgis:15-3.4-alpine
+    container_name: simtrg_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-simtrg_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-simtrg_secret_password}
+      POSTGRES_DB: ${DB_DATABASE:-simtrg_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-postgis.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "5433:5432"   # Exponer solo en Intranet (ajustar bind en prod)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-simtrg_user} -d ${DB_DATABASE:-simtrg_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - simtrg_network
+
+  # ---- Backend: NestJS API ----
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: simtrg_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DB_HOST: postgres      # Nombre del servicio en la red Docker
+      DB_PORT: 5432
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - simtrg_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# ---- Volumes persistentes ----
+volumes:
+  postgres_data:
+    name: simtrg_postgres_data
+  uploads_data:
+    name: simtrg_uploads
+
+# ---- Red interna aislada ----
+networks:
+  simtrg_network:
+    name: simtrg_net
+    driver: bridge

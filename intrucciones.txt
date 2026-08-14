@@ -1,0 +1,20 @@
+la aplicacion funciona, es para registrar fotos de drones con todos los datos y armar bases de datos, tiene un dashboard que
+deberia ser mas profesionar tener mas metricas filtros ver un mapa satelital con las operaciones con lugares de donde hay fotos
+todo para presentar en una reunion y tomas de desiciones
+
+en fotos de drones se sube bien y todo pero pues cuando suba una foto sin gps debe pedirme que ingrese la coordinadas o selecciones un punto en un mapa que deberia abrirse y se seleccione
+
+en eventos tacticos pues es para subir los eventos deberia poderse subir novedades, fotos, selecciona la ubicaicon gps o igual seleccionar del mapa o pues a su vez boton de ubicacion actual y se pongan las coordenadas actuales
+y abajo si todo bien poder aleiminar o editar el eventos
+
+tambien deberiamos tener un mapa geospacios pero en cambio ahora de eventos tacticos que han pasado
+
+e igual en dashboard deberia aparecer pro fechas todo esto para toma de desiciones y ver las cosas
+
+en el mapa de calor con filtros y todo que se vea en que aprte del pais hay mas o menos incidentes y pues de igual manera un filtro de fotos donde hay mas fotos y asi cosas, la adminsitracion y catalogo creo que no hay mas cosas que hacer
+
+adicional hay que mejorar la interfaz, que llene toda la pantalla que tenga adaptacion para telefonos moviles y asi.
+que se vea un interfaz moderna, 3d con animaciones con desplazamientos , si tienes preguntas no duddes en consultarme para estar seguro de todo, o si tienes consejos de que mas podriamos implementar dime
+
+
+Dejé activas las cuentas de prueba operador.test / supervisor.test (contraseñas Operador@Test123 / Supervisor@Test123) por si quieres entrar tú mismo a probarlo en el navegador antes de seguir — dime si prefieres que las borre.

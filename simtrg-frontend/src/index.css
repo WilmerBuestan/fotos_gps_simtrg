@@ -194,3 +194,254 @@ input[type='date']::-webkit-calendar-picker-indicator {
     display: none;
   }
 }
+
+/* ============================================================
+   Login — panel táctico HUD
+   Look fijo (no sigue el toggle claro/oscuro de la app): es la
+   puerta de entrada, con su propia identidad de marca.
+   Imágenes esperadas en /public/login/:
+     - fondo-hud.jpg  → fondo de pantalla completa
+     - emblema.png    → emblema/logo de la unidad (PNG transparente)
+   ============================================================ */
+.login-page {
+  --login-bg-dark: #0a0e17;
+  --login-panel-start: #3a414a;
+  --login-panel-end: #1d2229;
+  --login-text-main: #e2e8f0;
+  --login-text-muted: #94a3b8;
+  --login-input-bg: #11151c;
+  --login-input-border: #334155;
+  --login-neon-blue: #2196f3;
+  --login-neon-blue-glow: rgba(33, 150, 243, 0.5);
+  --login-btn-start: #1e88e5;
+  --login-btn-end: #0d47a1;
+
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--login-bg-dark);
+  background-image: url('/login/fondo-hud.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: 'Rajdhani', var(--font-sans);
+}
+
+.login-page .scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: rgba(33, 150, 243, 0.1);
+  box-shadow: 0 0 15px var(--login-neon-blue-glow);
+  opacity: 0.6;
+  animation: login-scan 6s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes login-scan {
+  0% { top: -10px; }
+  100% { top: 100%; }
+}
+
+.login-container {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+  width: 100%;
+  max-width: 440px;
+}
+
+.login-panel {
+  background: linear-gradient(135deg, var(--login-panel-start), var(--login-panel-end));
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 40px 35px;
+  border-radius: 16px;
+  border: 2px solid #525b66;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.7),
+    inset 0 2px 4px rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.5);
+  position: relative;
+  box-sizing: border-box;
+}
+
+.login-panel .screw {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle, #94a3b8 30%, #475569 80%);
+  border-radius: 50%;
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.4), 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+.login-panel .screw::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 15%;
+  width: 70%;
+  height: 2px;
+  background: #1e293b;
+  transform: translateY(-50%) rotate(45deg);
+}
+.login-panel .screw.top-left { top: 15px; left: 15px; }
+.login-panel .screw.top-right { top: 15px; right: 15px; }
+.login-panel .screw.bottom-left { bottom: 15px; left: 15px; }
+.login-panel .screw.bottom-right { bottom: 15px; right: 15px; }
+
+.login-panel .panel-header {
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.login-panel .logo {
+  width: 140px;
+  max-width: 40vw;
+  height: auto;
+  margin-top: -90px;
+  margin-bottom: 10px;
+  filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.6));
+}
+
+.login-panel .panel-header h1 {
+  color: var(--login-text-main);
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  margin: 0 0 5px 0;
+}
+
+.login-panel .panel-header p {
+  color: var(--login-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.login-panel .input-group {
+  margin-bottom: 20px;
+}
+
+.login-panel .input-group label {
+  display: block;
+  color: var(--login-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.login-panel .input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  background-color: var(--login-input-bg);
+  border: 1px solid var(--login-input-border);
+  border-radius: 8px;
+  color: var(--login-text-main);
+  font-size: 1rem;
+  font-family: 'Rajdhani', var(--font-sans);
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.login-panel .input-group input:focus {
+  border-color: var(--login-neon-blue);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 10px var(--login-neon-blue-glow);
+}
+
+.login-panel .input-group input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-panel .login-error {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-panel .btn-submit {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  background: linear-gradient(to bottom, var(--login-btn-start), var(--login-btn-end));
+  border: 1px solid #4fc3f7;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', var(--font-sans);
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px var(--login-neon-blue-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-panel .btn-submit:hover:not(:disabled) {
+  filter: brightness(1.2);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.7);
+  transform: translateY(-1px);
+}
+
+.login-panel .btn-submit:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px var(--login-neon-blue-glow);
+}
+
+.login-panel .btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.login-panel .login-footer {
+  margin-top: 26px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.login-panel .login-footer p {
+  color: var(--login-text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.5px;
+  margin: 3px 0;
+}
+
+.login-panel .login-footer strong {
+  color: var(--login-text-main);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .login-panel {
+    padding: 32px 22px;
+  }
+  .login-panel .logo {
+    width: 110px;
+    margin-top: -70px;
+  }
+  .login-panel .panel-header h1 {
+    font-size: 1.7rem;
+  }
+}

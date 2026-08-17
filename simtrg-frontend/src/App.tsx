@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import API from './services/api'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import FotosPage from './pages/FotosPage'
@@ -19,12 +20,23 @@ export default function App() {
 
   useEffect(() => {
     const storedUsuario = localStorage.getItem('usuario')
-    if (storedUsuario) {
+    const storedToken = localStorage.getItem('token')
+    if (storedUsuario && storedToken) {
       setUsuario(JSON.parse(storedUsuario))
+      // La sesión guardada puede tener un JWT vencido (expira a las 8h).
+      // Se valida contra el backend; si ya no es válido, el interceptor
+      // 401 de api.ts dispara 'auth:unauthorized' y se limpia sola.
+      API.get('/usuarios/mi-perfil-completo').catch(() => {})
     }
     setLoading(false)
 
     if (window.innerWidth < 768) setSidebarOpen(false)
+  }, [])
+
+  useEffect(() => {
+    const cerrarSesionExpirada = () => setUsuario(null)
+    window.addEventListener('auth:unauthorized', cerrarSesionExpirada)
+    return () => window.removeEventListener('auth:unauthorized', cerrarSesionExpirada)
   }, [])
 
   if (loading) {
@@ -181,6 +193,15 @@ export default function App() {
           >
             🚪 Cerrar
           </button>
+
+          <div style={{ textAlign: 'center', marginTop: '12px', paddingTop: '10px', borderTop: `1px solid ${colors.border}` }}>
+            <p style={{ margin: '0 0 2px 0', fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
+              Desarrollado por: <strong style={{ color: colors.textSecondary }}>Mashi - Wilo</strong>
+            </p>
+            <p style={{ margin: 0, fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
+              Powered by: <strong style={{ color: colors.textSecondary }}>Sanchez</strong>
+            </p>
+          </div>
         </div>
       </nav>
 

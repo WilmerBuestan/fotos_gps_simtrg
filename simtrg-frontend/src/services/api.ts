@@ -17,7 +17,10 @@ API.interceptors.response.use(
   (err) => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token')
-      window.location.href = '/login'
+      localStorage.removeItem('usuario')
+      // Aviso reactivo (sin recargar la página, sin loop): App.tsx escucha
+      // este evento y limpia la sesión para mostrar el login al instante.
+      window.dispatchEvent(new Event('auth:unauthorized'))
     }
     return Promise.reject(err)
   }

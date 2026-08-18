@@ -7,6 +7,7 @@ import EventosPage from './pages/EventosPage'
 import HeatmapPage from './pages/HeatmapPage'
 import MapaGeoespacialPage from './pages/MapaGeoespacialPage'
 import UsuariosPage from './pages/UsuariosPage'
+import GestionUsuariosPage from './pages/GestionUsuariosPage'
 import CatalogosPage from './pages/CatalogosPage'
 import { useTheme } from './contexts/ThemeContext'
 
@@ -58,6 +59,9 @@ export default function App() {
   const gestionItems = [
     ...(usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'SUPERVISOR'
       ? [{ id: 'usuarios', label: 'Usuarios', icon: '👥' }]
+      : []),
+    ...(usuario.rol === 'ADMINISTRADOR'
+      ? [{ id: 'gestion-usuarios', label: 'Gestionar Usuarios', icon: '🛠️' }]
       : []),
     ...(usuario.rol === 'ADMINISTRADOR'
       ? [{ id: 'catalogos', label: 'Catálogos', icon: '📚' }]
@@ -318,6 +322,7 @@ export default function App() {
           {currentPage === 'eventos' && <div className="animate-in" style={{ padding: '20px' }}><EventosPage /></div>}
           {currentPage === 'heatmap' && <div className="animate-in" style={{ height: '100%' }}><HeatmapPage /></div>}
           {currentPage === 'usuarios' && <div className="animate-in" style={{ padding: '20px' }}><UsuariosPage /></div>}
+          {currentPage === 'gestion-usuarios' && <div className="animate-in" style={{ padding: '20px' }}><GestionUsuariosPage /></div>}
           {currentPage === 'catalogos' && <div className="animate-in" style={{ padding: '20px' }}><CatalogosPage /></div>}
         </main>
       </div>

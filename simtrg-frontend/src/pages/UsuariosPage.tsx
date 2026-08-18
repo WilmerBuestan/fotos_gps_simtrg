@@ -3,22 +3,11 @@ import API from '../services/api'
 import { getImageUrl } from '../utils/media'
 import { useTheme } from '../contexts/ThemeContext'
 
-const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}')
-const esAdmin = usuarioActual.rol === 'ADMINISTRADOR'
-
 export default function UsuariosPage() {
   const { colors } = useTheme()
   const [usuarios, setUsuarios] = useState<any[]>([])
   const [fotos, setFotos] = useState<any[]>([])
   const [eventos, setEventos] = useState<any[]>([])
-  const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    username: '',
-    password: '',
-    rol: 'OPERADOR',
-  })
-  const [loading, setLoading] = useState(false)
   const [listLoading, setListLoading] = useState(true)
   const [selectedOperador, setSelectedOperador] = useState<any>(null)
 
@@ -43,28 +32,6 @@ export default function UsuariosPage() {
     }
   }
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault()
-    setLoading(true)
-
-    try {
-      await API.post('/usuarios', formData)
-      setFormData({
-        nombre: '',
-        apellido: '',
-        username: '',
-        password: '',
-        rol: 'OPERADOR',
-      })
-      cargarDatos()
-    } catch (err: any) {
-      console.error('Error:', err)
-      alert(err.response?.data?.message || 'Error al crear usuario')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const statsPorOperador: Record<string, { fotos: number; eventos: number; provincias: Set<string>; ultima: number }> = {}
   const registrarStat = (operadorId: string, tipo: 'fotos' | 'eventos', provincia: string | null, fecha: number) => {
     if (!operadorId) return
@@ -84,54 +51,14 @@ export default function UsuariosPage() {
     return items.sort((a, b) => b.fecha.getTime() - a.fecha.getTime()).slice(0, 8)
   }
 
-  const inputStyle = { width: '100%', padding: '8px', backgroundColor: colors.bg, color: colors.text, border: `1px solid ${colors.border}`, borderRadius: '4px', marginTop: '4px', fontSize: '13px', boxSizing: 'border-box' as const }
-  const labelStyle = { color: colors.textSecondary, fontSize: '12px', fontWeight: 'bold' as const }
-
   if (listLoading) return <div style={{ color: colors.text }}>Cargando...</div>
 
   return (
     <div>
-      <h2 style={{ color: colors.text, marginBottom: '8px' }}>👥 {esAdmin ? 'Gestión de Usuarios' : 'Supervisión de Operadores'}</h2>
+      <h2 style={{ color: colors.text, marginBottom: '8px' }}>👥 Supervisión de Operadores</h2>
       <p style={{ color: colors.textSecondary, marginTop: '0', marginBottom: '20px' }}>
-        {esAdmin ? 'Crea cuentas y supervisa la actividad de cada operador' : 'Actividad de cada operador: cuánto ha subido, dónde y cuándo'}
+        Actividad de cada operador: cuánto ha subido, dónde y cuándo
       </p>
-
-      {esAdmin && (
-        <div className="card animate-in" style={{ backgroundColor: colors.bgCard, padding: '20px', marginBottom: '20px', border: `1px solid ${colors.border}` }}>
-          <h3 style={{ color: colors.text, margin: '0 0 15px 0' }}>Crear Nuevo Usuario</h3>
-          <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', marginBottom: '10px' }}>
-              <div>
-                <label style={labelStyle}>Nombre</label>
-                <input type="text" value={formData.nombre} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} style={inputStyle} required />
-              </div>
-              <div>
-                <label style={labelStyle}>Apellido</label>
-                <input type="text" value={formData.apellido} onChange={(e) => setFormData({ ...formData, apellido: e.target.value })} style={inputStyle} required />
-              </div>
-              <div>
-                <label style={labelStyle}>Usuario</label>
-                <input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} style={inputStyle} required />
-              </div>
-              <div>
-                <label style={labelStyle}>Contraseña</label>
-                <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} style={inputStyle} required />
-              </div>
-              <div>
-                <label style={labelStyle}>Rol</label>
-                <select value={formData.rol} onChange={(e) => setFormData({ ...formData, rol: e.target.value })} style={inputStyle}>
-                  <option value="OPERADOR">Operador</option>
-                  <option value="SUPERVISOR">Supervisor</option>
-                  <option value="ADMINISTRADOR">Administrador</option>
-                </select>
-              </div>
-            </div>
-            <button type="submit" disabled={loading} className="btn" style={{ padding: '10px 20px', backgroundColor: '#3fb950', color: 'white', fontWeight: 'bold', fontSize: '13px', opacity: loading ? 0.6 : 1 }}>
-              {loading ? 'Creando...' : 'Crear Usuario'}
-            </button>
-          </form>
-        </div>
-      )}
 
       <div className="card animate-in" style={{ backgroundColor: colors.bgCard, padding: '20px', border: `1px solid ${colors.border}` }}>
         <h3 style={{ color: colors.text, margin: '0 0 15px 0' }}>Usuarios del Sistema ({usuarios.length})</h3>

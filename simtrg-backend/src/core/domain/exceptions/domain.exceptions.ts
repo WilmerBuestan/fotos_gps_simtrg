@@ -45,3 +45,24 @@ export class AccesoNoAutorizadoException extends DomainException {
     this.name = 'AccesoNoAutorizadoException';
   }
 }
+
+export class NoPuedeModificarseASiMismoException extends DomainException {
+  constructor(accion: string) {
+    super(`No puedes ${accion} tu propia cuenta. Pide a otro Administrador que lo haga.`);
+    this.name = 'NoPuedeModificarseASiMismoException';
+  }
+}
+
+export class UltimoAdministradorException extends DomainException {
+  constructor() {
+    super('No se puede completar la operación: debe quedar al menos un Administrador activo en el sistema.');
+    this.name = 'UltimoAdministradorException';
+  }
+}
+
+export class UsuarioConRegistrosAsociadosException extends DomainException {
+  constructor() {
+    super('No se puede eliminar: este usuario tiene fotos o eventos registrados. Desactívalo en su lugar para conservar el historial.');
+    this.name = 'UsuarioConRegistrosAsociadosException';
+  }
+}

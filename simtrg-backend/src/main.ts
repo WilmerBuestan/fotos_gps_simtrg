@@ -11,7 +11,15 @@ async function bootstrap() {
     prefix: '/uploads',
   })
 
-  app.enableCors()
+  // Configuración estricta de CORS para desarrollo local y túneles
+  app.enableCors({
+    origin: [
+      'http://localhost:5173',          // Frontend local normal
+      /^https:\/\/.*\.devtunnels\.ms$/  // Cualquier túnel dinámico de VS Code
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true, // Permitir envío de cookies/tokens de sesión
+  })
 
   const apiPrefix = '/api/v1'
   app.setGlobalPrefix(apiPrefix)

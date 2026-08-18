@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+// Ruta relativa: el proxy de Vite (ver vite.config.ts) reenvía /api al
+// backend. Funciona igual en localhost, por túnel o por IP de red local.
 const API = axios.create({
-  baseURL: 'http://localhost:3000/api/v1',
+  baseURL: '/api/v1',
 })
 
 API.interceptors.request.use((config) => {

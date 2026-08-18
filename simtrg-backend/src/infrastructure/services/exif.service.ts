@@ -23,10 +23,16 @@ export class ExifService {
       // sin esa referencia, exifr no puede saber el signo real y asume
       // positivo (Norte/Este) por defecto, lo cual puede dar coordenadas
       // completamente erróneas (ej. en el hemisferio equivocado).
+      // Nota: exifr solo calcula los campos derivados 'latitude'/'longitude'
+      // si además se piden explícitamente los tags crudos GPSLatitude/
+      // GPSLongitude junto a sus Ref — pedir solo 'latitude'/'longitude'
+      // en el pick los deja vacíos aunque el EXIF sí tenga GPS completo.
       const data = await exifr.parse(rutaArchivo, {
         pick: [
           'latitude',
           'longitude',
+          'GPSLatitude',
+          'GPSLongitude',
           'GPSLatitudeRef',
           'GPSLongitudeRef',
           'DateTimeOriginal',

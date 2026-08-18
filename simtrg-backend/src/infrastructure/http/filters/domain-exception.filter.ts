@@ -19,6 +19,9 @@ import {
   CredencialesInvalidasException,
   UsuarioInactivoException,
   AccesoNoAutorizadoException,
+  NoPuedeModificarseASiMismoException,
+  UltimoAdministradorException,
+  UsuarioConRegistrosAsociadosException,
 } from '../../../core/domain/exceptions/domain.exceptions';
 
 @Catch(DomainException)
@@ -60,6 +63,15 @@ export class DomainExceptionFilter implements ExceptionFilter {
     }
     if (exception instanceof AccesoNoAutorizadoException) {
       return HttpStatus.FORBIDDEN;
+    }
+    if (exception instanceof NoPuedeModificarseASiMismoException) {
+      return HttpStatus.FORBIDDEN;
+    }
+    if (exception instanceof UltimoAdministradorException) {
+      return HttpStatus.CONFLICT;
+    }
+    if (exception instanceof UsuarioConRegistrosAsociadosException) {
+      return HttpStatus.CONFLICT;
     }
     return HttpStatus.BAD_REQUEST;
   }

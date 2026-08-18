@@ -11,6 +11,8 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
+  Delete,
   Body,
   Param,
   UseGuards,
@@ -31,7 +33,9 @@ import { UsuarioActual } from '../../decorators/usuario-actual.decorator';
 import { RolUsuario } from '../../../../core/domain/entities/usuario.entity';
 import { CrearUsuarioUseCase } from '../../../../core/use-cases/users/crear-usuario.use-case';
 import { ObtenerUsuariosUseCase } from '../../../../core/use-cases/users/obtener-usuarios.use-case';
-import { CrearUsuarioDto } from './users.dto';
+import { ActualizarUsuarioUseCase } from '../../../../core/use-cases/users/actualizar-usuario.use-case';
+import { EliminarUsuarioUseCase } from '../../../../core/use-cases/users/eliminar-usuario.use-case';
+import { CrearUsuarioDto, ActualizarUsuarioDto } from './users.dto';
 import { JwtPayload } from '../../../../shared/types/jwt-payload.type';
 
 @ApiTags('Usuarios')
@@ -42,6 +46,8 @@ export class UsersController {
   constructor(
     private readonly crearUsuarioUseCase: CrearUsuarioUseCase,
     private readonly obtenerUsuariosUseCase: ObtenerUsuariosUseCase,
+    private readonly actualizarUsuarioUseCase: ActualizarUsuarioUseCase,
+    private readonly eliminarUsuarioUseCase: EliminarUsuarioUseCase,
   ) {}
 
   @Post()
@@ -83,5 +89,44 @@ export class UsersController {
   @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.obtenerUsuariosUseCase.findById(id);
+  }
+
+  @Patch(':id')
+  @Roles(RolUsuario.ADMINISTRADOR)
+  @ApiOperation({ summary: '[ADMIN] Editar usuario (datos, rol, estado o contraseña)' })
+  @ApiResponse({ status: 200, description: 'Usuario actualizado.' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
+  @ApiResponse({ status: 409, description: 'Debe quedar al menos un Administrador activo.' })
+  async actualizar(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ActualizarUsuarioDto,
+    @UsuarioActual() user: JwtPayload,
+  ) {
+    return this.actualizarUsuarioUseCase.execute({
+      id,
+      actorId: user.sub,
+      nombre: dto.nombre,
+      apellido: dto.apellido,
+      nuevaPassword: dto.nuevaPassword,
+      rol: dto.rol,
+      activo: dto.activo,
+    });
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Roles(RolUsuario.ADMINISTRADOR)
+  @ApiOperation({ summary: '[ADMIN] Eliminar usuario permanentemente' })
+  @ApiResponse({ status: 204, description: 'Usuario eliminado.' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
+  @ApiResponse({
+    status: 409,
+    description: 'El usuario tiene fotos/eventos asociados, o es el último Administrador.',
+  })
+  async eliminar(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UsuarioActual() user: JwtPayload,
+  ) {
+    await this.eliminarUsuarioUseCase.execute(id, user.sub);
   }
 }

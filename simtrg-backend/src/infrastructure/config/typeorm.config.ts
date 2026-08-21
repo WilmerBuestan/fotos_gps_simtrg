@@ -3,6 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import * as dotenv from 'dotenv';
 import { UsuarioOrmEntity } from '../database/entities/usuario.orm-entity';
 import { AuditoriaLogOrmEntity } from '../database/entities/auditoria-log.orm-entity';
+import { DronFisicoOrmEntity } from '../database/entities/dron-fisico.orm-entity';
+import { PrestamoDronOrmEntity } from '../database/entities/prestamo-dron.orm-entity';
+import { MovimientoPendienteOrmEntity } from '../database/entities/movimiento-pendiente.orm-entity';
 // NOTA: este array de entities ya estaba incompleto antes de este cambio
 // (solo listaba UsuarioOrmEntity, sin FotoDronOrmEntity/EventoTacticoOrmEntity/etc.).
 // Se agrega AuditoriaLogOrmEntity para que `migration:generate` la detecte,
@@ -20,7 +23,13 @@ export default new DataSource({
   username: configService.get('DB_USERNAME', 'simtrg_user'),
   password: configService.get('DB_PASSWORD', 'simtrg_secret_password'),
   database: configService.get('DB_DATABASE', 'simtrg_db'),
-  entities: [UsuarioOrmEntity, AuditoriaLogOrmEntity],
+  entities: [
+    UsuarioOrmEntity,
+    AuditoriaLogOrmEntity,
+    DronFisicoOrmEntity,
+    PrestamoDronOrmEntity,
+    MovimientoPendienteOrmEntity,
+  ],
   migrations: ['src/infrastructure/database/migrations/*.ts'],
   synchronize: false, // NUNCA true en producción
   logging: configService.get('NODE_ENV') === 'development',

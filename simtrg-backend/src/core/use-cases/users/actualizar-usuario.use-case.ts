@@ -22,6 +22,7 @@ export interface ActualizarUsuarioInputDto {
   nuevaPassword?: string;
   rol?: RolUsuario;
   activo?: boolean;
+  tagRfid?: string | null;
 }
 
 export interface ActualizarUsuarioOutputDto {
@@ -30,6 +31,7 @@ export interface ActualizarUsuarioOutputDto {
   username: string;
   rol: string;
   activo: boolean;
+  tagRfid?: string;
 }
 
 const SALT_ROUNDS = 12;
@@ -77,6 +79,7 @@ export class ActualizarUsuarioUseCase {
       passwordHash,
       rol: input.rol,
       activo: input.activo,
+      tagRfid: input.tagRfid,
     });
 
     return {
@@ -85,6 +88,7 @@ export class ActualizarUsuarioUseCase {
       username: actualizado.username,
       rol: actualizado.rol,
       activo: actualizado.activo,
+      tagRfid: actualizado.tagRfid,
     };
   }
 

@@ -51,6 +51,12 @@ export class CrearUsuarioDto {
     message: `El rol debe ser uno de: ${Object.values(RolUsuario).join(', ')}`,
   })
   rol: RolUsuario;
+
+  @ApiPropertyOptional({ example: '04A3B2C1', description: 'UID de la tarjeta RFID personal (Gestor de Drones)' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  tagRfid?: string;
 }
 
 export class ActualizarUsuarioDto {
@@ -81,4 +87,22 @@ export class ActualizarUsuarioDto {
   @IsOptional()
   @IsBoolean()
   activo?: boolean;
+
+  @ApiPropertyOptional({ example: '04A3B2C1', description: 'UID de la tarjeta RFID personal (Gestor de Drones)' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  tagRfid?: string;
+}
+
+export class ActualizarTagUsuarioDto {
+  @ApiPropertyOptional({
+    example: '04A3B2C1',
+    description: 'UID de la tarjeta RFID personal. Enviar null para quitar la tarjeta asignada.',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  tagRfid?: string | null;
 }

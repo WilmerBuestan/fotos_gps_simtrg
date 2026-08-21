@@ -10,8 +10,13 @@ import UsuariosPage from './pages/UsuariosPage'
 import GestionUsuariosPage from './pages/GestionUsuariosPage'
 import CatalogosPage from './pages/CatalogosPage'
 import LogsPage from './pages/LogsPage'
+import GestorDronesPage from './pages/GestorDronesPage'
 import { useTheme } from './contexts/ThemeContext'
 import { obtenerGeolocalizacion } from './utils/geolocalizacion'
+
+// El bodeguero solo administra inventario de drones — no tiene por qué
+// aterrizar en el Dashboard táctico, que además no puede ver.
+const paginaInicialParaRol = (rol: string) => (rol === 'BODEGUERO' ? 'gestor-drones' : 'dashboard')
 
 export default function App() {
   const [usuario, setUsuario] = useState<any>(null)
@@ -21,11 +26,16 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false)
   const { isDarkMode, toggleDarkMode, colors } = useTheme()
 
+  const iniciarSesion = (u: any) => {
+    setUsuario(u)
+    setCurrentPage(paginaInicialParaRol(u.rol))
+  }
+
   useEffect(() => {
     const storedUsuario = localStorage.getItem('usuario')
     const storedToken = localStorage.getItem('token')
     if (storedUsuario && storedToken) {
-      setUsuario(JSON.parse(storedUsuario))
+      iniciarSesion(JSON.parse(storedUsuario))
       // La sesión guardada puede tener un JWT vencido (expira a las 8h).
       // Se valida contra el backend; si ya no es válido, el interceptor
       // 401 de api.ts dispara 'auth:unauthorized' y se limpia sola.
@@ -34,6 +44,7 @@ export default function App() {
     setLoading(false)
 
     if (window.innerWidth < 768) setSidebarOpen(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -47,10 +58,12 @@ export default function App() {
   }
 
   if (!usuario) {
-    return <LoginPage onLogin={setUsuario} />
+    return <LoginPage onLogin={iniciarSesion} />
   }
 
-  const navItems = [
+  // El bodeguero solo administra el inventario de drones — no ve el
+  // resto del sistema táctico (dashboard, mapas, fotos, eventos).
+  const navItems = usuario.rol === 'BODEGUERO' ? [] : [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'mapa', label: 'Mapa Geoespacial', icon: '🗺️' },
     { id: 'fotos', label: 'Fotos de Drones', icon: '📸' },
@@ -70,6 +83,9 @@ export default function App() {
       : []),
     ...(usuario.rol === 'ADMINISTRADOR'
       ? [{ id: 'logs', label: 'Logs de Auditoría', icon: '📋' }]
+      : []),
+    ...(usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'BODEGUERO'
+      ? [{ id: 'gestor-drones', label: 'Gestor de Drones', icon: '🚁' }]
       : []),
   ]
 
@@ -103,35 +119,37 @@ export default function App() {
           <p style={{ margin: '0', fontSize: '11px', color: colors.textTertiary }}>Sistema de Monitoreo Táctico</p>
         </div>
 
-        <ul style={{ listStyle: 'none', padding: '0', margin: '0 0 20px 0' }}>
-          {navItems.map(item => (
-            <li key={item.id} style={{ marginBottom: '6px' }}>
-              <button
-                onClick={() => irA(item.id)}
-                className="row-hover"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: 'none',
-                  backgroundColor: currentPage === item.id ? colors.primary : 'transparent',
-                  color: currentPage === item.id ? (isDarkMode ? '#0d1117' : '#ffffff') : colors.text,
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  fontSize: '13px',
-                  fontWeight: currentPage === item.id ? 'bold' : 'normal',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}
-              >
-                <span style={{ fontSize: '16px' }}>{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        {navItems.length > 0 && (
+          <ul style={{ listStyle: 'none', padding: '0', margin: '0 0 20px 0' }}>
+            {navItems.map(item => (
+              <li key={item.id} style={{ marginBottom: '6px' }}>
+                <button
+                  onClick={() => irA(item.id)}
+                  className="row-hover"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: 'none',
+                    backgroundColor: currentPage === item.id ? colors.primary : 'transparent',
+                    color: currentPage === item.id ? (isDarkMode ? '#0d1117' : '#ffffff') : colors.text,
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontSize: '13px',
+                    fontWeight: currentPage === item.id ? 'bold' : 'normal',
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <span style={{ fontSize: '16px' }}>{item.icon}</span>
+                  <span>{item.label}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
 
         {gestionItems.length > 0 && (
           <>
@@ -339,6 +357,7 @@ export default function App() {
           {currentPage === 'gestion-usuarios' && <div className="animate-in" style={{ padding: '20px' }}><GestionUsuariosPage /></div>}
           {currentPage === 'catalogos' && <div className="animate-in" style={{ padding: '20px' }}><CatalogosPage /></div>}
           {currentPage === 'logs' && <div className="animate-in" style={{ padding: '20px' }}><LogsPage /></div>}
+          {currentPage === 'gestor-drones' && <div className="animate-in" style={{ padding: '20px' }}><GestorDronesPage /></div>}
         </main>
       </div>
     </div>

@@ -47,6 +47,7 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
       orm.ultimaUbicacionCanton ?? undefined,
       orm.ultimaUbicacionParroquia ?? undefined,
       orm.ultimaUbicacionFecha ?? undefined,
+      orm.tagRfid ?? undefined,
     );
   }
 
@@ -59,6 +60,11 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
 
   async findByUsername(username: string): Promise<UsuarioDomain | null> {
     const orm = await this.repo.findOne({ where: { username } });
+    return orm ? this.toDomain(orm) : null;
+  }
+
+  async findByTagRfid(tagRfid: string): Promise<UsuarioDomain | null> {
+    const orm = await this.repo.findOne({ where: { tagRfid } });
     return orm ? this.toDomain(orm) : null;
   }
 
@@ -78,6 +84,7 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
       passwordHash: data.passwordHash,
       rol: data.rol,
       activo: true,
+      tagRfid: data.tagRfid ?? null,
     });
     const saved = await this.repo.save(orm);
     return this.toDomain(saved);
@@ -107,6 +114,7 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
         ultimaUbicacionParroquia: data.ultimaUbicacionParroquia,
       }),
       ...(data.ultimaUbicacionFecha && { ultimaUbicacionFecha: data.ultimaUbicacionFecha }),
+      ...(data.tagRfid !== undefined && { tagRfid: data.tagRfid }),
     });
     const updated = await this.repo.findOne({ where: { id } });
     return this.toDomain(updated!);

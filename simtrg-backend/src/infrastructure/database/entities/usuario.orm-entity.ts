@@ -64,6 +64,10 @@ export class UsuarioOrmEntity {
   @Column({ name: 'ultima_ubicacion_fecha', type: 'timestamptz', nullable: true })
   ultimaUbicacionFecha: Date | null;
 
+  @Index({ unique: true, where: '"tag_rfid" IS NOT NULL' })
+  @Column({ name: 'tag_rfid', type: 'varchar', nullable: true })
+  tagRfid: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

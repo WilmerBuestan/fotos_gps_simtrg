@@ -11,6 +11,7 @@ import { DronesModule } from './infrastructure/http/modules/drones.module';
 import { EventosModule } from './infrastructure/http/modules/eventos.module';
 import { LogsModule } from './infrastructure/http/modules/logs.module';
 import { AiModule } from './infrastructure/http/modules/ai.module';
+import { DronesFisicosModule } from './infrastructure/http/modules/drones-fisicos.module';
 import { AuditoriaInterceptor } from './infrastructure/http/interceptors/auditoria.interceptor';
 import { DomainExceptionFilter } from './infrastructure/http/filters/domain-exception.filter';
 
@@ -25,6 +26,7 @@ import { DomainExceptionFilter } from './infrastructure/http/filters/domain-exce
     EventosModule,
     LogsModule,
     AiModule,
+    DronesFisicosModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

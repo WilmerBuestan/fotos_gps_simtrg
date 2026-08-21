@@ -13,6 +13,7 @@ export interface CreateUsuarioDto {
   username: string;
   passwordHash: string;
   rol: RolUsuario;
+  tagRfid?: string | null;
 }
 
 export interface UpdateUsuarioDto {
@@ -28,11 +29,13 @@ export interface UpdateUsuarioDto {
   ultimaUbicacionCanton?: string;
   ultimaUbicacionParroquia?: string;
   ultimaUbicacionFecha?: Date;
+  tagRfid?: string | null;
 }
 
 export abstract class IUsuarioRepository {
   abstract findById(id: string): Promise<UsuarioDomain | null>;
   abstract findByUsername(username: string): Promise<UsuarioDomain | null>;
+  abstract findByTagRfid(tagRfid: string): Promise<UsuarioDomain | null>;
   abstract findAll(): Promise<UsuarioDomain[]>;
   abstract create(data: CreateUsuarioDto): Promise<UsuarioDomain>;
   abstract update(id: string, data: UpdateUsuarioDto): Promise<UsuarioDomain>;

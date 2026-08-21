@@ -13,6 +13,7 @@ const initialFormData = {
   password: '',
   rol: 'OPERADOR',
   activo: true,
+  tagRfid: '',
 }
 
 export default function GestionUsuariosPage() {
@@ -58,6 +59,7 @@ export default function GestionUsuariosPage() {
       password: '',
       rol: usr.rol,
       activo: usr.activo,
+      tagRfid: usr.tagRfid || '',
     })
     setUsuarioEditando(usr)
     setError('')
@@ -77,12 +79,14 @@ export default function GestionUsuariosPage() {
     setError('')
 
     try {
+      const tagRfid = formData.tagRfid.trim() || null
       if (editando) {
         const payload: any = {
           nombre: formData.nombre,
           apellido: formData.apellido,
           rol: formData.rol,
           activo: formData.activo,
+          tagRfid,
         }
         if (formData.password) payload.nuevaPassword = formData.password
         await API.patch(`/usuarios/${formData.id}`, payload)
@@ -93,6 +97,7 @@ export default function GestionUsuariosPage() {
           username: formData.username,
           password: formData.password,
           rol: formData.rol,
+          tagRfid,
         })
       }
       cerrarModal()
@@ -127,7 +132,7 @@ export default function GestionUsuariosPage() {
   const labelStyle = { color: colors.textSecondary, fontSize: '12px', fontWeight: 'bold' as const }
 
   const rolColor = (rol: string) =>
-    rol === 'ADMINISTRADOR' ? '#f85149' : rol === 'SUPERVISOR' ? '#ffa657' : '#58a6ff'
+    rol === 'ADMINISTRADOR' ? '#f85149' : rol === 'SUPERVISOR' ? '#ffa657' : rol === 'BODEGUERO' ? '#a371f7' : '#58a6ff'
 
   if (listLoading) return <div style={{ color: colors.text }}>Cargando...</div>
 
@@ -241,6 +246,7 @@ export default function GestionUsuariosPage() {
                     <option value="OPERADOR">Operador</option>
                     <option value="SUPERVISOR">Supervisor</option>
                     <option value="ADMINISTRADOR">Administrador</option>
+                    <option value="BODEGUERO">Bodeguero</option>
                   </select>
                 </div>
                 {editando && (
@@ -252,6 +258,14 @@ export default function GestionUsuariosPage() {
                     </select>
                   </div>
                 )}
+              </div>
+
+              <div style={{ marginBottom: '18px' }}>
+                <label style={labelStyle}>Tag RFID (opcional)</label>
+                <input type="text" value={formData.tagRfid} onChange={(e) => setFormData({ ...formData, tagRfid: e.target.value.toUpperCase() })} style={inputStyle} placeholder="Ej. 04A3B2C1" />
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: colors.textTertiary }}>
+                  UID de la tarjeta personal para el Gestor de Drones. Se puede dejar en blanco y asignar después.
+                </p>
               </div>
 
               {editando && usuarioEditando && (

@@ -23,6 +23,7 @@ export interface UsuarioResponseDto {
   ultimaUbicacionCanton: string | undefined;
   ultimaUbicacionParroquia: string | undefined;
   ultimaUbicacionFecha: Date | undefined;
+  tagRfid: string | undefined;
 }
 
 @Injectable()
@@ -62,6 +63,7 @@ export class ObtenerUsuariosUseCase {
       ultimaUbicacionCanton: usuario.ultimaUbicacionCanton,
       ultimaUbicacionParroquia: usuario.ultimaUbicacionParroquia,
       ultimaUbicacionFecha: usuario.ultimaUbicacionFecha,
+      tagRfid: usuario.tagRfid,
     };
   }
 }

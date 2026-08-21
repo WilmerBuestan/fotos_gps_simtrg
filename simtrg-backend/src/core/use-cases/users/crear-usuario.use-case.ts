@@ -19,6 +19,7 @@ export interface CrearUsuarioInputDto {
   username: string;
   password: string;
   rol: RolUsuario;
+  tagRfid?: string;
 }
 
 export interface CrearUsuarioOutputDto {
@@ -28,6 +29,7 @@ export interface CrearUsuarioOutputDto {
   rol: string;
   activo: boolean;
   createdAt: Date;
+  tagRfid?: string;
 }
 
 const SALT_ROUNDS = 12;
@@ -58,6 +60,7 @@ export class CrearUsuarioUseCase {
       username: input.username,
       passwordHash,
       rol: input.rol,
+      tagRfid: input.tagRfid,
     };
 
     const usuarioCreado = await this.usuarioRepository.create(data);
@@ -69,6 +72,7 @@ export class CrearUsuarioUseCase {
       rol: usuarioCreado.rol,
       activo: usuarioCreado.activo,
       createdAt: usuarioCreado.createdAt,
+      tagRfid: usuarioCreado.tagRfid,
     };
   }
 }

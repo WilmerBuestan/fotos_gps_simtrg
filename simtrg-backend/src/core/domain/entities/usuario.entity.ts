@@ -9,6 +9,7 @@ export enum RolUsuario {
   OPERADOR = 'OPERADOR',
   SUPERVISOR = 'SUPERVISOR',
   ADMINISTRADOR = 'ADMINISTRADOR',
+  BODEGUERO = 'BODEGUERO',
 }
 
 export class UsuarioDomain {
@@ -29,6 +30,7 @@ export class UsuarioDomain {
     public ultimaUbicacionCanton?: string,
     public ultimaUbicacionParroquia?: string,
     public ultimaUbicacionFecha?: Date,
+    public tagRfid?: string,
   ) {}
 
   // ---- Reglas de Negocio ----

@@ -27,6 +27,7 @@ export class FotoDronDomain {
     public tamanoBytes: number,
     public provincia?: string | null,
     public canton?: string | null,
+    public parroquia?: string | null,
   ) {}
 
   // ---- Reglas de negocio ----

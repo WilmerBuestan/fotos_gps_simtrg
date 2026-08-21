@@ -6,6 +6,7 @@ import { FotoDronOrmEntity } from './entities/foto-dron.orm-entity';
 import { TipoActividadOrmEntity } from './entities/tipo-actividad.orm-entity';
 import { EventoTacticoOrmEntity } from './entities/evento-tactico.orm-entity';
 import { EventoFotoOrmEntity } from './entities/evento-foto.orm-entity';
+import { AuditoriaLogOrmEntity } from './entities/auditoria-log.orm-entity';
 import { AdminSeeder } from './seeds/admin.seed';
 
 @Module({
@@ -25,6 +26,7 @@ import { AdminSeeder } from './seeds/admin.seed';
           TipoActividadOrmEntity,
           EventoTacticoOrmEntity,
           EventoFotoOrmEntity,
+          AuditoriaLogOrmEntity,
         ],
         migrations: ['dist/infrastructure/database/migrations/*.js'],
         migrationsRun: true,

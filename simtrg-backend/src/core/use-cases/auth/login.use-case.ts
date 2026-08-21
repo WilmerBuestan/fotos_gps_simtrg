@@ -8,15 +8,21 @@ import { Injectable, Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { IUsuarioRepository } from '../../domain/repositories/usuario.repository';
+import { IGeografiaRepository } from '../../domain/repositories/geografia.repository';
 import {
   CredencialesInvalidasException,
   UsuarioInactivoException,
 } from '../../domain/exceptions/domain.exceptions';
 import { JwtPayload } from '../../../shared/types/jwt-payload.type';
+import { RegistrarLogUseCase } from '../auditoria/registrar-log.use-case';
+import { TipoEventoAuditoria } from '../../domain/entities/auditoria-log.entity';
 
 export interface LoginInputDto {
   username: string;
   password: string;
+  latitud?: number;
+  longitud?: number;
+  ip?: string;
 }
 
 export interface LoginOutputDto {
@@ -34,7 +40,10 @@ export class LoginUseCase {
   constructor(
     @Inject(IUsuarioRepository)
     private readonly usuarioRepository: IUsuarioRepository,
+    @Inject(IGeografiaRepository)
+    private readonly geografiaRepository: IGeografiaRepository,
     private readonly jwtService: JwtService,
+    private readonly registrarLogUseCase: RegistrarLogUseCase,
   ) {}
 
   async execute(input: LoginInputDto): Promise<LoginOutputDto> {
@@ -59,10 +68,46 @@ export class LoginUseCase {
       throw new CredencialesInvalidasException();
     }
 
-    // 4. Registrar último acceso
+    // 4. Registrar último acceso y (si hay coordenadas) última ubicación
     usuario.registrarAcceso();
+
+    let provincia: string | undefined;
+    let canton: string | undefined;
+    let parroquia: string | undefined;
+    if (input.latitud != null && input.longitud != null) {
+      const ubicacion = await this.geografiaRepository
+        .resolverUbicacion(input.latitud, input.longitud)
+        .catch(() => null);
+      provincia = ubicacion?.provincia;
+      canton = ubicacion?.canton;
+      parroquia = ubicacion?.parroquia;
+      usuario.actualizarUbicacion(input.latitud, input.longitud, provincia, canton, parroquia);
+    }
+
     await this.usuarioRepository.update(usuario.id, {
       ultimoAcceso: usuario.ultimoAcceso,
+      ...(input.latitud != null &&
+        input.longitud != null && {
+          ultimaUbicacionLat: input.latitud,
+          ultimaUbicacionLon: input.longitud,
+          ultimaUbicacionProvincia: provincia,
+          ultimaUbicacionCanton: canton,
+          ultimaUbicacionParroquia: parroquia,
+          ultimaUbicacionFecha: usuario.ultimaUbicacionFecha,
+        }),
+    });
+
+    await this.registrarLogUseCase.execute({
+      tipoEvento: TipoEventoAuditoria.LOGIN,
+      metodoHttp: 'POST',
+      url: '/auth/login',
+      usuarioId: usuario.id,
+      username: usuario.username,
+      rol: usuario.rol,
+      ip: input.ip ?? null,
+      latitud: input.latitud ?? null,
+      longitud: input.longitud ?? null,
+      exitoso: true,
     });
 
     // 5. Generar JWT con payload mínimo necesario

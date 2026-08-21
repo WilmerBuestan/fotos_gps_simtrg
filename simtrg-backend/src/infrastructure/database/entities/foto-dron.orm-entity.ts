@@ -52,6 +52,9 @@ export class FotoDronOrmEntity {
   @Column({ type: 'varchar', nullable: true })
   canton: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  parroquia: string | null;
+
   @Column({ name: 'operador_id' })
   operadorId: string;
 

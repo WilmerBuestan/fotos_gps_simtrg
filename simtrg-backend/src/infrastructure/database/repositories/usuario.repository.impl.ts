@@ -41,6 +41,12 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
       orm.createdAt,
       orm.updatedAt,
       orm.ultimoAcceso ?? undefined,
+      orm.ultimaUbicacionLat ?? undefined,
+      orm.ultimaUbicacionLon ?? undefined,
+      orm.ultimaUbicacionProvincia ?? undefined,
+      orm.ultimaUbicacionCanton ?? undefined,
+      orm.ultimaUbicacionParroquia ?? undefined,
+      orm.ultimaUbicacionFecha ?? undefined,
     );
   }
 
@@ -85,6 +91,22 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
       ...(data.rol && { rol: data.rol }),
       ...(data.activo !== undefined && { activo: data.activo }),
       ...(data.ultimoAcceso && { ultimoAcceso: data.ultimoAcceso }),
+      ...(data.ultimaUbicacionLat !== undefined && {
+        ultimaUbicacionLat: data.ultimaUbicacionLat,
+      }),
+      ...(data.ultimaUbicacionLon !== undefined && {
+        ultimaUbicacionLon: data.ultimaUbicacionLon,
+      }),
+      ...(data.ultimaUbicacionProvincia !== undefined && {
+        ultimaUbicacionProvincia: data.ultimaUbicacionProvincia,
+      }),
+      ...(data.ultimaUbicacionCanton !== undefined && {
+        ultimaUbicacionCanton: data.ultimaUbicacionCanton,
+      }),
+      ...(data.ultimaUbicacionParroquia !== undefined && {
+        ultimaUbicacionParroquia: data.ultimaUbicacionParroquia,
+      }),
+      ...(data.ultimaUbicacionFecha && { ultimaUbicacionFecha: data.ultimaUbicacionFecha }),
     });
     const updated = await this.repo.findOne({ where: { id } });
     return this.toDomain(updated!);

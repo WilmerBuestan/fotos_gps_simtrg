@@ -7,6 +7,8 @@
 export interface UbicacionAdministrativa {
   provincia: string;
   canton: string;
+  parroquia?: string;
+  codigoPostal?: string;
 }
 
 export abstract class IGeografiaRepository {

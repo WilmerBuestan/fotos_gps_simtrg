@@ -17,6 +17,12 @@ export interface UsuarioResponseDto {
   activo: boolean;
   ultimoAcceso: Date | undefined;
   createdAt: Date;
+  ultimaUbicacionLat: number | undefined;
+  ultimaUbicacionLon: number | undefined;
+  ultimaUbicacionProvincia: string | undefined;
+  ultimaUbicacionCanton: string | undefined;
+  ultimaUbicacionParroquia: string | undefined;
+  ultimaUbicacionFecha: Date | undefined;
 }
 
 @Injectable()
@@ -50,6 +56,12 @@ export class ObtenerUsuariosUseCase {
       activo: usuario.activo,
       ultimoAcceso: usuario.ultimoAcceso,
       createdAt: usuario.createdAt,
+      ultimaUbicacionLat: usuario.ultimaUbicacionLat,
+      ultimaUbicacionLon: usuario.ultimaUbicacionLon,
+      ultimaUbicacionProvincia: usuario.ultimaUbicacionProvincia,
+      ultimaUbicacionCanton: usuario.ultimaUbicacionCanton,
+      ultimaUbicacionParroquia: usuario.ultimaUbicacionParroquia,
+      ultimaUbicacionFecha: usuario.ultimaUbicacionFecha,
     };
   }
 }

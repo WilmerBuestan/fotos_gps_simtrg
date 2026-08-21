@@ -10,13 +10,17 @@ import { UsuarioOrmEntity } from '../../database/entities/usuario.orm-entity';
 // Repositorio: Puerto → Adaptador
 import { IUsuarioRepository } from '../../../core/domain/repositories/usuario.repository';
 import { UsuarioRepositoryImpl } from '../../database/repositories/usuario.repository.impl';
+import { IGeografiaRepository } from '../../../core/domain/repositories/geografia.repository';
+import { GeografiaRepositoryImpl } from '../../database/repositories/geografia.repository.impl';
 
 // Casos de uso
 import { LoginUseCase } from '../../../core/use-cases/auth/login.use-case';
+import { LogoutUseCase } from '../../../core/use-cases/auth/logout.use-case';
 
 // HTTP
 import { JwtStrategy } from '../guards/jwt.strategy';
 import { AuthController } from '../controllers/auth/auth.controller';
+import { LogsModule } from './logs.module';
 
 @Module({
   imports: [
@@ -31,6 +35,7 @@ import { AuthController } from '../controllers/auth/auth.controller';
       }),
     }),
     TypeOrmModule.forFeature([UsuarioOrmEntity]),
+    LogsModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -39,7 +44,9 @@ import { AuthController } from '../controllers/auth/auth.controller';
       provide: IUsuarioRepository,
       useClass: UsuarioRepositoryImpl,
     },
+    { provide: IGeografiaRepository, useClass: GeografiaRepositoryImpl },
     LoginUseCase,
+    LogoutUseCase,
     JwtStrategy,
   ],
   exports: [JwtModule, PassportModule],

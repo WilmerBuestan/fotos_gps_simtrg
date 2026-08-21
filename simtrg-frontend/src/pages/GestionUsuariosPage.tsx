@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import API from '../services/api'
 import { useTheme } from '../contexts/ThemeContext'
+import UbicacionMiniMapa from '../components/UbicacionMiniMapa'
 
 const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}')
 
@@ -22,6 +23,7 @@ export default function GestionUsuariosPage() {
   const [error, setError] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState<any>(initialFormData)
+  const [usuarioEditando, setUsuarioEditando] = useState<any>(null)
 
   const editando = formData.id !== null
 
@@ -42,6 +44,7 @@ export default function GestionUsuariosPage() {
 
   const abrirCrear = () => {
     setFormData(initialFormData)
+    setUsuarioEditando(null)
     setError('')
     setShowModal(true)
   }
@@ -56,6 +59,7 @@ export default function GestionUsuariosPage() {
       rol: usr.rol,
       activo: usr.activo,
     })
+    setUsuarioEditando(usr)
     setError('')
     setShowModal(true)
   }
@@ -63,6 +67,7 @@ export default function GestionUsuariosPage() {
   const cerrarModal = () => {
     setShowModal(false)
     setFormData(initialFormData)
+    setUsuarioEditando(null)
     setError('')
   }
 
@@ -248,6 +253,24 @@ export default function GestionUsuariosPage() {
                   </div>
                 )}
               </div>
+
+              {editando && usuarioEditando && (
+                <div style={{ marginBottom: '18px' }}>
+                  <label style={labelStyle}>Última ubicación conocida</label>
+                  {usuarioEditando.ultimaUbicacionLat != null && usuarioEditando.ultimaUbicacionLon != null ? (
+                    <div style={{ marginTop: '6px' }}>
+                      <UbicacionMiniMapa lat={usuarioEditando.ultimaUbicacionLat} lon={usuarioEditando.ultimaUbicacionLon} height="140px" />
+                      <p style={{ margin: '6px 0 0 0', fontSize: '11px', color: colors.textSecondary }}>
+                        {[usuarioEditando.ultimaUbicacionParroquia, usuarioEditando.ultimaUbicacionCanton, usuarioEditando.ultimaUbicacionProvincia].filter(Boolean).join(', ') || 'Fuera de zonas conocidas'}
+                        {' · '}
+                        {usuarioEditando.ultimaUbicacionLat.toFixed(4)}°, {usuarioEditando.ultimaUbicacionLon.toFixed(4)}°
+                      </p>
+                    </div>
+                  ) : (
+                    <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: colors.textTertiary }}>Sin registro (se captura al iniciar/cerrar sesión).</p>
+                  )}
+                </div>
+              )}
 
               {error && (
                 <p style={{ color: '#f85149', fontSize: '12px', marginTop: '-8px', marginBottom: '14px' }}>{error}</p>

@@ -39,6 +39,7 @@ export class AsignarCoordenadasManualesUseCase {
       origenCoordenada: OrigenCoordenada.MANUAL,
       provincia: ubicacion?.provincia ?? null,
       canton: ubicacion?.canton ?? null,
+      parroquia: ubicacion?.parroquia ?? null,
     })
   }
 }

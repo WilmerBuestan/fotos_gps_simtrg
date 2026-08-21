@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import API from '../services/api'
+import { obtenerGeolocalizacion } from '../utils/geolocalizacion'
 
 export default function LoginPage({ onLogin }: { onLogin: (usuario: any) => void }) {
   const [username, setUsername] = useState('')
@@ -13,7 +14,8 @@ export default function LoginPage({ onLogin }: { onLogin: (usuario: any) => void
     setError('')
 
     try {
-      const res = await API.post('/auth/login', { username, password })
+      const { latitud, longitud } = await obtenerGeolocalizacion()
+      const res = await API.post('/auth/login', { username, password, latitud, longitud })
       localStorage.setItem('token', res.data.accessToken)
       localStorage.setItem('usuario', JSON.stringify(res.data.usuario))
       onLogin(res.data.usuario)

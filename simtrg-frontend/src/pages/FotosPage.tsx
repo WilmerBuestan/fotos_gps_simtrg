@@ -319,6 +319,7 @@ useEffect(() => {
             <p style={{ margin: '4px 0' }}><strong style={{ color: colors.text }}>Coordenadas:</strong> {selectedFoto.latitud.toFixed(4)}°, {selectedFoto.longitud.toFixed(4)}°</p>
             <p style={{ margin: '4px 0' }}><strong style={{ color: colors.text }}>Provincia:</strong> {selectedFoto.provincia || 'Desconocida'}</p>
             <p style={{ margin: '4px 0' }}><strong style={{ color: colors.text }}>Cantón:</strong> {selectedFoto.canton || 'Desconocido'}</p>
+            <p style={{ margin: '4px 0' }}><strong style={{ color: colors.text }}>Parroquia:</strong> {selectedFoto.parroquia || 'Desconocida'}</p>
           </>
         ) : (
           <div style={{ padding: '10px', backgroundColor: colors.border, borderRadius: '4px', border: `2px solid #f85149` }}>

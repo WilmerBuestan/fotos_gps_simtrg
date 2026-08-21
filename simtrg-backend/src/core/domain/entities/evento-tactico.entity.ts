@@ -23,6 +23,7 @@ export class EventoTacticoDomain {
     public fotos?: EventoFotoDomain[],
     public provincia?: string | null,
     public canton?: string | null,
+    public parroquia?: string | null,
   ) {}
 
   // ---- Reglas de negocio ----

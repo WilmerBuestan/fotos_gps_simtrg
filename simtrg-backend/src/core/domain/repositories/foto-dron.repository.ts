@@ -18,6 +18,7 @@ export interface CreateFotoDronDto {
   tamanoBytes: number
   provincia?: string | null
   canton?: string | null
+  parroquia?: string | null
 }
 
 export interface FiltroFotosHeatmapDto {

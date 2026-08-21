@@ -97,6 +97,7 @@ export class BulkUploadFotosUseCase {
           tamanoBytes: archivo.size,
           provincia: ubicacion?.provincia ?? null,
           canton: ubicacion?.canton ?? null,
+          parroquia: ubicacion?.parroquia ?? null,
         });
 
         // 6. Clasificar resultado

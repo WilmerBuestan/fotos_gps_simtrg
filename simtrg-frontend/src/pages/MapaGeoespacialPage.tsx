@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { MapContainer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import API from '../services/api'
 import { getImageUrl } from '../utils/media'
 import { useTheme } from '../contexts/ThemeContext'
+import CapasBaseMapa from '../components/CapasBaseMapa'
 import 'leaflet/dist/leaflet.css'
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -242,7 +243,7 @@ export default function MapaGeoespacialPage() {
       {/* Mapa */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative', backgroundColor: colors.border, minHeight: '0' }}>
         <MapContainer center={[-0.2226, -78.5125]} zoom={10} style={{ width: '100%', height: '100%' }}>
-          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" attribution='&copy; Esri' />
+          <CapasBaseMapa predeterminada="satelital" />
 
           {mapView === 'fotos' && fotosAgrupadas.map((grupo, idx) => (
             <Marker key={idx} position={[grupo.lat, grupo.lon]} eventHandlers={{ click: () => { setSelectedMarker({ tipo: 'foto', fotos: grupo.fotos }); setSelectedFotoIndex(0); } }}>
@@ -294,6 +295,7 @@ export default function MapaGeoespacialPage() {
                   <p style={{ margin: '3px 0' }}><strong style={{ color: colors.text }}>Lon:</strong> {currentFoto.longitud.toFixed(4)}°</p>
                   <p style={{ margin: '3px 0' }}><strong style={{ color: colors.text }}>Provincia:</strong> {currentFoto.provincia || 'Desconocida'}</p>
                   <p style={{ margin: '3px 0' }}><strong style={{ color: colors.text }}>Cantón:</strong> {currentFoto.canton || 'Desconocido'}</p>
+                  <p style={{ margin: '3px 0' }}><strong style={{ color: colors.text }}>Parroquia:</strong> {currentFoto.parroquia || 'Desconocida'}</p>
                 </div>
               </div>
 

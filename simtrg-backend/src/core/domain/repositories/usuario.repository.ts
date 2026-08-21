@@ -22,6 +22,12 @@ export interface UpdateUsuarioDto {
   rol?: RolUsuario;
   activo?: boolean;
   ultimoAcceso?: Date;
+  ultimaUbicacionLat?: number;
+  ultimaUbicacionLon?: number;
+  ultimaUbicacionProvincia?: string;
+  ultimaUbicacionCanton?: string;
+  ultimaUbicacionParroquia?: string;
+  ultimaUbicacionFecha?: Date;
 }
 
 export abstract class IUsuarioRepository {

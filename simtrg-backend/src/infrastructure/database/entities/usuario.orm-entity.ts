@@ -46,6 +46,24 @@ export class UsuarioOrmEntity {
   @Column({ name: 'ultimo_acceso', nullable: true, type: 'timestamptz' })
   ultimoAcceso: Date | null;
 
+  @Column({ name: 'ultima_ubicacion_lat', type: 'double precision', nullable: true })
+  ultimaUbicacionLat: number | null;
+
+  @Column({ name: 'ultima_ubicacion_lon', type: 'double precision', nullable: true })
+  ultimaUbicacionLon: number | null;
+
+  @Column({ name: 'ultima_ubicacion_provincia', type: 'varchar', nullable: true })
+  ultimaUbicacionProvincia: string | null;
+
+  @Column({ name: 'ultima_ubicacion_canton', type: 'varchar', nullable: true })
+  ultimaUbicacionCanton: string | null;
+
+  @Column({ name: 'ultima_ubicacion_parroquia', type: 'varchar', nullable: true })
+  ultimaUbicacionParroquia: string | null;
+
+  @Column({ name: 'ultima_ubicacion_fecha', type: 'timestamptz', nullable: true })
+  ultimaUbicacionFecha: Date | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

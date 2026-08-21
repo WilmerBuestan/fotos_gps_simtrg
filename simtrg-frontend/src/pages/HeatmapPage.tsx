@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { MapContainer, TileLayer } from 'react-leaflet'
+import { MapContainer } from 'react-leaflet'
 import API from '../services/api'
 import HeatLayer from '../components/HeatLayer'
+import CapasBaseMapa from '../components/CapasBaseMapa'
 import { useTheme } from '../contexts/ThemeContext'
 import 'leaflet/dist/leaflet.css'
 
@@ -135,12 +136,7 @@ export default function HeatmapPage() {
           </div>
         )}
         <MapContainer center={CENTRO_ECUADOR} zoom={7} style={{ width: '100%', height: '100%' }}>
-          <TileLayer
-            url={isDarkMode
-              ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-              : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'}
-            attribution='&copy; OpenStreetMap contributors &copy; CARTO'
-          />
+          <CapasBaseMapa predeterminada={isDarkMode ? 'oscuro' : 'claro'} />
           {puntosMapa.length > 0 && <HeatLayer puntos={puntosMapa} max={maxDensidad} />}
         </MapContainer>
 

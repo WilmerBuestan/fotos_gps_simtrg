@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import API from '../services/api'
 import { getImageUrl } from '../utils/media'
 import { useTheme } from '../contexts/ThemeContext'
+import UbicacionMiniMapa from '../components/UbicacionMiniMapa'
 
 export default function UsuariosPage() {
   const { colors } = useTheme()
@@ -126,6 +127,27 @@ export default function UsuariosPage() {
                 <p style={{ margin: 0, fontSize: '18px', fontWeight: 'bold', color: '#db61a2' }}>{statsPorOperador[selectedOperador.id]?.provincias.size || 0}</p>
               </div>
             </div>
+
+            <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Última ubicación conocida</h4>
+            {selectedOperador.ultimaUbicacionLat != null && selectedOperador.ultimaUbicacionLon != null ? (
+              <div style={{ marginBottom: '15px' }}>
+                <UbicacionMiniMapa lat={selectedOperador.ultimaUbicacionLat} lon={selectedOperador.ultimaUbicacionLon} />
+                <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: colors.textSecondary }}>
+                  {[selectedOperador.ultimaUbicacionParroquia, selectedOperador.ultimaUbicacionCanton, selectedOperador.ultimaUbicacionProvincia].filter(Boolean).join(', ') || 'Ubicación fuera de zonas conocidas'}
+                  {' · '}
+                  {selectedOperador.ultimaUbicacionLat.toFixed(4)}°, {selectedOperador.ultimaUbicacionLon.toFixed(4)}°
+                </p>
+                {selectedOperador.ultimaUbicacionFecha && (
+                  <p style={{ margin: '2px 0 0 0', fontSize: '11px', color: colors.textTertiary }}>
+                    Registrada el {new Date(selectedOperador.ultimaUbicacionFecha).toLocaleString('es-EC')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p style={{ color: colors.textSecondary, fontSize: '12px', marginBottom: '15px' }}>
+                Sin registro de ubicación (se captura al iniciar/cerrar sesión, si el usuario autoriza la geolocalización del navegador).
+              </p>
+            )}
 
             <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Actividad reciente</h4>
             {actividadDe(selectedOperador.id).length === 0 ? (

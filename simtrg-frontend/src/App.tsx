@@ -9,7 +9,9 @@ import MapaGeoespacialPage from './pages/MapaGeoespacialPage'
 import UsuariosPage from './pages/UsuariosPage'
 import GestionUsuariosPage from './pages/GestionUsuariosPage'
 import CatalogosPage from './pages/CatalogosPage'
+import LogsPage from './pages/LogsPage'
 import { useTheme } from './contexts/ThemeContext'
+import { obtenerGeolocalizacion } from './utils/geolocalizacion'
 
 export default function App() {
   const [usuario, setUsuario] = useState<any>(null)
@@ -65,6 +67,9 @@ export default function App() {
       : []),
     ...(usuario.rol === 'ADMINISTRADOR'
       ? [{ id: 'catalogos', label: 'Catálogos', icon: '📚' }]
+      : []),
+    ...(usuario.rol === 'ADMINISTRADOR'
+      ? [{ id: 'logs', label: 'Logs de Auditoría', icon: '📋' }]
       : []),
   ]
 
@@ -180,7 +185,16 @@ export default function App() {
           </button>
 
           <button
-            onClick={() => {
+            onClick={async () => {
+              // El registro de logout necesita el token vigente, así que se
+              // llama ANTES de limpiar localStorage. Nunca debe bloquear el
+              // cierre de sesión: errores de red o de geolocalización se ignoran.
+              try {
+                const { latitud, longitud } = await obtenerGeolocalizacion()
+                await API.post('/auth/logout', { latitud, longitud })
+              } catch {
+                // Cerrar sesión igual aunque falle el registro del evento.
+              }
               localStorage.removeItem('token')
               localStorage.removeItem('usuario')
               setUsuario(null)
@@ -324,6 +338,7 @@ export default function App() {
           {currentPage === 'usuarios' && <div className="animate-in" style={{ padding: '20px' }}><UsuariosPage /></div>}
           {currentPage === 'gestion-usuarios' && <div className="animate-in" style={{ padding: '20px' }}><GestionUsuariosPage /></div>}
           {currentPage === 'catalogos' && <div className="animate-in" style={{ padding: '20px' }}><CatalogosPage /></div>}
+          {currentPage === 'logs' && <div className="animate-in" style={{ padding: '20px' }}><LogsPage /></div>}
         </main>
       </div>
     </div>

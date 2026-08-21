@@ -31,6 +31,7 @@ export interface CreateEventoTacticoDto {
   operadorId: string;
   provincia?: string | null;
   canton?: string | null;
+  parroquia?: string | null;
 }
 
 export interface FiltroEventosDto {

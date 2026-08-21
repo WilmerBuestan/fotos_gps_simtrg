@@ -98,6 +98,7 @@ export class RegistrarEventoUseCase {
       ...data,
       provincia: ubicacion?.provincia ?? null,
       canton: ubicacion?.canton ?? null,
+      parroquia: ubicacion?.parroquia ?? null,
     });
   }
 }
@@ -136,6 +137,7 @@ export class ActualizarEventoUseCase {
       const ubicacion = await this.geografiaRepository.resolverUbicacion(data.latitud, data.longitud);
       data.provincia = ubicacion?.provincia ?? null;
       data.canton = ubicacion?.canton ?? null;
+      data.parroquia = ubicacion?.parroquia ?? null;
     }
 
     return this.eventoRepo.update(id, data);

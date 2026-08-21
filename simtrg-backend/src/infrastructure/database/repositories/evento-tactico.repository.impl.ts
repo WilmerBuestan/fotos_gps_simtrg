@@ -45,6 +45,7 @@ export class EventoTacticoRepositoryImpl implements IEventoTacticoRepository {
       undefined,
       orm.provincia,
       orm.canton,
+      orm.parroquia,
     );
   }
 
@@ -59,6 +60,7 @@ export class EventoTacticoRepositoryImpl implements IEventoTacticoRepository {
       operadorId: data.operadorId,
       provincia: data.provincia ?? null,
       canton: data.canton ?? null,
+      parroquia: data.parroquia ?? null,
     });
     const saved = await this.repo.save(orm);
     const withRelations = await this.repo.findOne({

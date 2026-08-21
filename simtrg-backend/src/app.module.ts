@@ -9,6 +9,8 @@ import { AuthModule } from './infrastructure/http/modules/auth.module';
 import { UsersModule } from './infrastructure/http/modules/users.module';
 import { DronesModule } from './infrastructure/http/modules/drones.module';
 import { EventosModule } from './infrastructure/http/modules/eventos.module';
+import { LogsModule } from './infrastructure/http/modules/logs.module';
+import { AiModule } from './infrastructure/http/modules/ai.module';
 import { AuditoriaInterceptor } from './infrastructure/http/interceptors/auditoria.interceptor';
 import { DomainExceptionFilter } from './infrastructure/http/filters/domain-exception.filter';
 
@@ -21,6 +23,8 @@ import { DomainExceptionFilter } from './infrastructure/http/filters/domain-exce
     UsersModule,
     DronesModule,
     EventosModule,
+    LogsModule,
+    AiModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

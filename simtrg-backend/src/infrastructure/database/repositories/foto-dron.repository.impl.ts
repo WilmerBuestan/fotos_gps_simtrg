@@ -49,6 +49,7 @@ export class FotoDronRepositoryImpl implements IFotoDronRepository {
       orm.tamanoBytes,
       orm.provincia,
       orm.canton,
+      orm.parroquia,
     )
   }
 
@@ -69,6 +70,7 @@ export class FotoDronRepositoryImpl implements IFotoDronRepository {
       tamanoBytes: data.tamanoBytes,
       provincia: data.provincia ?? null,
       canton: data.canton ?? null,
+      parroquia: data.parroquia ?? null,
     })
     const saved = await this.repo.save(orm)
     return this.toDomain(saved)

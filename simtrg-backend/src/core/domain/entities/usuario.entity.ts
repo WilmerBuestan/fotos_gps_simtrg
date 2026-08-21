@@ -23,6 +23,12 @@ export class UsuarioDomain {
     public readonly createdAt: Date,
     public updatedAt: Date,
     public ultimoAcceso?: Date,
+    public ultimaUbicacionLat?: number,
+    public ultimaUbicacionLon?: number,
+    public ultimaUbicacionProvincia?: string,
+    public ultimaUbicacionCanton?: string,
+    public ultimaUbicacionParroquia?: string,
+    public ultimaUbicacionFecha?: Date,
   ) {}
 
   // ---- Reglas de Negocio ----
@@ -56,5 +62,20 @@ export class UsuarioDomain {
 
   registrarAcceso(): void {
     this.ultimoAcceso = new Date();
+  }
+
+  actualizarUbicacion(
+    lat: number,
+    lon: number,
+    provincia?: string,
+    canton?: string,
+    parroquia?: string,
+  ): void {
+    this.ultimaUbicacionLat = lat;
+    this.ultimaUbicacionLon = lon;
+    this.ultimaUbicacionProvincia = provincia;
+    this.ultimaUbicacionCanton = canton;
+    this.ultimaUbicacionParroquia = parroquia;
+    this.ultimaUbicacionFecha = new Date();
   }
 }

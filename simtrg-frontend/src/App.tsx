@@ -84,9 +84,13 @@ export default function App() {
     ...(usuario.rol === 'ADMINISTRADOR'
       ? [{ id: 'logs', label: 'Logs de Auditoría', icon: '📋' }]
       : []),
-    ...(usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'BODEGUERO'
-      ? [{ id: 'gestor-drones', label: 'Gestor de Drones', icon: '🚁' }]
-      : []),
+  ]
+
+  const puedeGestionarDrones = usuario.rol === 'ADMINISTRADOR' || usuario.rol === 'BODEGUERO'
+  const gestorDronesSubItems = [
+    { id: 'gestor-drones-movimientos', label: 'Movimientos', icon: '🔄' },
+    { id: 'gestor-drones-inventario', label: 'Inventario', icon: '📦' },
+    { id: 'gestor-drones-usuarios', label: 'Tags de usuarios', icon: '🏷️' },
   ]
 
   const irA = (id: string) => {
@@ -151,7 +155,7 @@ export default function App() {
           </ul>
         )}
 
-        {gestionItems.length > 0 && (
+        {(gestionItems.length > 0 || puedeGestionarDrones) && (
           <>
             <hr style={{ margin: '15px 0', borderColor: colors.bgSecondary, borderWidth: '1px 0 0 0' }} />
             <p style={{ margin: '8px 0', fontSize: '11px', color: colors.textTertiary, fontWeight: 'bold' }}>ADMINISTRACIÓN</p>
@@ -181,6 +185,58 @@ export default function App() {
                   <span>{item.label}</span>
                 </button>
               ))}
+              {puedeGestionarDrones && (
+                <>
+                  <button
+                    onClick={() => irA('gestor-drones')}
+                    className="row-hover"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      marginBottom: '6px',
+                      border: 'none',
+                      backgroundColor: currentPage === 'gestor-drones' ? colors.primary : 'transparent',
+                      color: currentPage === 'gestor-drones' ? (isDarkMode ? '#0d1117' : '#ffffff') : colors.text,
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      fontSize: '13px',
+                      fontWeight: currentPage === 'gestor-drones' ? 'bold' : 'normal',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                    }}
+                  >
+                    <span style={{ fontSize: '16px' }}>🚁</span>
+                    <span>Gestor de Drones</span>
+                  </button>
+                  {gestorDronesSubItems.map(item => (
+                    <button key={item.id}
+                      onClick={() => irA(item.id)}
+                      className="row-hover"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px 8px 30px',
+                        marginBottom: '4px',
+                        border: 'none',
+                        backgroundColor: currentPage === item.id ? colors.primary : 'transparent',
+                        color: currentPage === item.id ? (isDarkMode ? '#0d1117' : '#ffffff') : colors.textSecondary,
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontSize: '12px',
+                        fontWeight: currentPage === item.id ? 'bold' : 'normal',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                      }}
+                    >
+                      <span style={{ fontSize: '13px' }}>{item.icon}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  ))}
+                </>
+              )}
             </ul>
           </>
         )}
@@ -357,7 +413,15 @@ export default function App() {
           {currentPage === 'gestion-usuarios' && <div className="animate-in" style={{ padding: '20px' }}><GestionUsuariosPage /></div>}
           {currentPage === 'catalogos' && <div className="animate-in" style={{ padding: '20px' }}><CatalogosPage /></div>}
           {currentPage === 'logs' && <div className="animate-in" style={{ padding: '20px' }}><LogsPage /></div>}
-          {currentPage === 'gestor-drones' && <div className="animate-in" style={{ padding: '20px' }}><GestorDronesPage /></div>}
+          {currentPage.startsWith('gestor-drones') && (
+            <div className="animate-in" style={{ padding: '20px' }}>
+              <GestorDronesPage seccion={
+                currentPage === 'gestor-drones-movimientos' ? 'movimientos' :
+                currentPage === 'gestor-drones-inventario' ? 'inventario' :
+                currentPage === 'gestor-drones-usuarios' ? 'usuarios' : 'dashboard'
+              } />
+            </div>
+          )}
         </main>
       </div>
     </div>

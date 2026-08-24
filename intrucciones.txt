@@ -1,5 +1,1 @@
-funciona sin novedad hasta el momento pero debemos imaginar casos de uso:
-1. en caso de que se le pierda al operador la tarjeta y solo tengamos el dron, viene mete el dron y mi companero ya le aumento un boton y pues solo me enviaria un dato o bien el operador o bien el dron
-2. la app en ese caso debe mandar un mensaje se ha recibido un dron ingrese el operador y aparecen el listado para escoger o a su vez al reves se ha recibido solo un operador y para escoger el dron registrado y pero todo aparezca en observaciones que fue manualmente
-3. mejoremos el interfaz, que se vean tarjetas de lo que entra y sale y pues tambien filro hoy semana mes, y tambien tenga para generar reporte, y pues dentro del modulo de gestor de drones pues tengaa tambien otro sub modulo para registrar editar o eliminar drondes y otro submodulo para los usuarios donde exclusivamente el bodeguero pueda meterle ese tag el codigo, el admin obivmente tiene todo esto,
-4. el bodeguero tambien debe tener otro submodulo de dashboard donde vea un resumen de lo que ha pasado con graficos y filtros para poder generar reportes igual con caratula y pdf
+hazta el momento todo bien

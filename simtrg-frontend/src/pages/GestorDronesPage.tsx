@@ -1,12 +1,18 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
-  BarChart, Bar, PieChart, Pie, Cell,
+  AreaChart, Area, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts'
+import { MapContainer, CircleMarker, Popup } from 'react-leaflet'
+import CapasBaseMapa from '../components/CapasBaseMapa'
+import AjustarLimitesMapa from '../components/AjustarLimitesMapa'
+import 'leaflet/dist/leaflet.css'
 import API from '../services/api'
 import { useTheme } from '../contexts/ThemeContext'
 import { exportarDashboardPdf } from '../utils/exportarDashboardPdf'
 import type { SeccionPdf } from '../utils/exportarDashboardPdf'
+
+const CENTRO_ECUADOR: [number, number] = [-0.2226, -78.5125]
 
 const initialFormData = {
   id: null as string | null,
@@ -36,11 +42,10 @@ const hoyStr = (offsetDias = 0) => {
   return d.toISOString().slice(0, 10)
 }
 
-type Tab = 'movimientos' | 'inventario' | 'usuarios' | 'dashboard'
+type Seccion = 'movimientos' | 'inventario' | 'usuarios' | 'dashboard'
 
-export default function GestorDronesPage() {
+export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
   const { colors, isDarkMode } = useTheme()
-  const [tab, setTab] = useState<Tab>('movimientos')
 
   const [drones, setDrones] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
@@ -80,6 +85,7 @@ export default function GestorDronesPage() {
   const contenedorRef = useRef<HTMLDivElement>(null)
   const statsRef = useRef<HTMLDivElement>(null)
   const chartsRef = useRef<HTMLDivElement>(null)
+  const detalleRef = useRef<HTMLDivElement>(null)
 
   const cargarTodo = useCallback(async () => {
     try {
@@ -120,8 +126,8 @@ export default function GestorDronesPage() {
   }, [dashFechaDesde, dashFechaHasta])
 
   useEffect(() => {
-    if (tab === 'dashboard') cargarEstadisticas()
-  }, [tab, cargarEstadisticas])
+    if (seccion === 'dashboard') cargarEstadisticas()
+  }, [seccion, cargarEstadisticas])
 
   // ---- Inventario: crear/editar ----
 
@@ -242,6 +248,14 @@ export default function GestorDronesPage() {
   const setRangoMes = () => { setMovFechaDesde(hoyStr(-29)); setMovFechaHasta(hoyStr()) }
   const limpiarRango = () => { setMovFechaDesde(''); setMovFechaHasta('') }
 
+  const horasEnCurso = (fechaSalida: string) => (Date.now() - new Date(fechaSalida).getTime()) / (1000 * 60 * 60)
+  const duracion = (p: any) => {
+    const ms = (p.fechaEntrada ? new Date(p.fechaEntrada).getTime() : Date.now()) - new Date(p.fechaSalida).getTime()
+    const horas = Math.floor(ms / (1000 * 60 * 60))
+    const minutos = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60))
+    return `${horas}h ${minutos}m`
+  }
+
   const dentroDelRangoMov = (fecha: Date) => {
     if (movFechaDesde && fecha < new Date(movFechaDesde)) return false
     if (movFechaHasta && fecha > new Date(movFechaHasta + 'T23:59:59')) return false
@@ -274,6 +288,44 @@ export default function GestorDronesPage() {
     [prestamos, movFechaDesde, movFechaHasta],
   )
 
+  // ---- Dashboard: alertas, actividad reciente y ubicación de préstamos en curso ----
+
+  const prestamosEnCurso = useMemo(() => prestamos.filter((p) => !p.fechaEntrada), [prestamos])
+
+  const alertasAtrasados = useMemo(
+    () => prestamosEnCurso.filter((p) => horasEnCurso(p.fechaSalida) > HORAS_ALERTA_PRESTAMO),
+    [prestamosEnCurso],
+  )
+  const dronesEnMantenimiento = useMemo(() => drones.filter((d) => d.estado === 'MANTENIMIENTO'), [drones])
+
+  const eventosRecientesTodos = useMemo(() => {
+    const eventos: any[] = []
+    for (const p of prestamos) {
+      eventos.push({ id: `${p.id}-salida`, tipo: 'SALIDA', fecha: p.fechaSalida, dronCodigo: p.dronCodigoInterno, persona: p.usuarioSalidaNombre })
+      if (p.fechaEntrada) {
+        eventos.push({ id: `${p.id}-entrada`, tipo: 'ENTRADA', fecha: p.fechaEntrada, dronCodigo: p.dronCodigoInterno, persona: p.usuarioEntradaNombre })
+      }
+    }
+    return eventos.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+  }, [prestamos])
+
+  const ubicacionesPrestamosEnCurso = useMemo(() => {
+    return prestamosEnCurso
+      .map((p) => {
+        const operador = usuarios.find((u) => u.id === p.usuarioSalidaId)
+        if (!operador?.ultimaUbicacionLat || !operador?.ultimaUbicacionLon) return null
+        return {
+          id: p.id,
+          lat: operador.ultimaUbicacionLat as number,
+          lon: operador.ultimaUbicacionLon as number,
+          dronCodigo: p.dronCodigoInterno,
+          persona: p.usuarioSalidaNombre,
+          fechaSalida: p.fechaSalida,
+        }
+      })
+      .filter((p): p is NonNullable<typeof p> => !!p)
+  }, [prestamosEnCurso, usuarios])
+
   // ---- Tags de usuario ----
 
   const guardarTag = async (usuarioId: string) => {
@@ -301,6 +353,7 @@ export default function GestorDronesPage() {
       const secciones: (SeccionPdf | null)[] = [
         statsRef.current ? { tipo: 'imagen', titulo: 'Resumen', elemento: statsRef.current, sinCortar: true } : null,
         chartsRef.current ? { tipo: 'imagen', titulo: 'Gráficos', elemento: chartsRef.current, sinCortar: true } : null,
+        detalleRef.current ? { tipo: 'imagen', titulo: 'Detalle', elemento: detalleRef.current } : null,
       ]
       const seccionesValidas = secciones.filter((s): s is SeccionPdf => !!s)
 
@@ -329,50 +382,23 @@ export default function GestorDronesPage() {
   const statLabelStyle = { color: colors.textSecondary, margin: '0 0 8px 0', fontSize: '12px' }
   const statValueStyle = { fontSize: '24px', fontWeight: 'bold' as const, margin: '0' }
 
-  const horasEnCurso = (fechaSalida: string) => (Date.now() - new Date(fechaSalida).getTime()) / (1000 * 60 * 60)
-  const duracion = (p: any) => {
-    const ms = (p.fechaEntrada ? new Date(p.fechaEntrada).getTime() : Date.now()) - new Date(p.fechaSalida).getTime()
-    const horas = Math.floor(ms / (1000 * 60 * 60))
-    const minutos = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60))
-    return `${horas}h ${minutos}m`
-  }
-
   const usuariosActivos = usuarios.filter((u) => u.activo)
   const dronesDisponibles = drones.filter((d) => d.estado === 'DISPONIBLE' || d.estado === 'PRESTADO')
 
   if (loading) return <div style={{ color: colors.text }}>Cargando...</div>
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: 'movimientos', label: '🔄 Movimientos' },
-    { id: 'inventario', label: '🚁 Inventario' },
-    { id: 'usuarios', label: '🏷️ Tags de usuarios' },
-    { id: 'dashboard', label: '📊 Dashboard' },
-  ]
+  const titulos: Record<Seccion, string> = {
+    dashboard: '📊 Dashboard',
+    movimientos: '🔄 Movimientos',
+    inventario: '📦 Inventario',
+    usuarios: '🏷️ Tags de usuarios',
+  }
 
   return (
     <div>
       <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ color: colors.text, margin: '0 0 8px 0' }}>🚁 Gestor de Drones</h2>
+        <h2 style={{ color: colors.text, margin: '0 0 8px 0' }}>🚁 Gestor de Drones — {titulos[seccion]}</h2>
         <p style={{ color: colors.textSecondary, margin: 0 }}>Inventario de drones físicos y control de préstamos (bodega)</p>
-      </div>
-
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className="btn"
-            style={{
-              padding: '9px 16px',
-              backgroundColor: tab === t.id ? colors.primary : 'transparent',
-              color: tab === t.id ? (isDarkMode ? '#0d1117' : '#ffffff') : colors.text,
-              border: `1px solid ${tab === t.id ? colors.primary : colors.border}`,
-              fontWeight: 'bold', fontSize: '13px', borderRadius: '6px', cursor: 'pointer',
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
       </div>
 
       {pendientes.length > 0 && (
@@ -419,7 +445,7 @@ export default function GestorDronesPage() {
         </div>
       )}
 
-      {tab === 'movimientos' && (
+      {seccion === 'movimientos' && (
         <div className="animate-in">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -500,7 +526,7 @@ export default function GestorDronesPage() {
         </div>
       )}
 
-      {tab === 'inventario' && (
+      {seccion === 'inventario' && (
         <div className="animate-in card" style={{ backgroundColor: colors.bgCard, padding: '20px', border: `1px solid ${colors.border}` }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
             <h3 style={{ color: colors.text, margin: 0 }}>Inventario ({drones.length})</h3>
@@ -547,7 +573,7 @@ export default function GestorDronesPage() {
         </div>
       )}
 
-      {tab === 'usuarios' && (
+      {seccion === 'usuarios' && (
         <div className="animate-in card" style={{ backgroundColor: colors.bgCard, padding: '20px', border: `1px solid ${colors.border}` }}>
           <h3 style={{ color: colors.text, margin: '0 0 6px 0' }}>Tags RFID de usuarios ({usuarios.length})</h3>
           <p style={{ color: colors.textSecondary, margin: '0 0 15px 0', fontSize: '12px' }}>
@@ -596,8 +622,25 @@ export default function GestorDronesPage() {
         </div>
       )}
 
-      {tab === 'dashboard' && (
+      {seccion === 'dashboard' && (
         <div className="animate-in" ref={contenedorRef}>
+          {(() => {
+            const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}')
+            const nombre = usuarioActual.nombreCompleto || usuarioActual.username || 'Usuario'
+            const iniciales = nombre.split(' ').filter(Boolean).slice(0, 2).map((p: string) => p[0]).join('').toUpperCase()
+            return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: colors.primary, color: isDarkMode ? '#0d1117' : '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', flexShrink: 0 }}>
+                  {iniciales || '👤'}
+                </div>
+                <div>
+                  <p style={{ margin: 0, color: colors.textSecondary, fontSize: '12px' }}>Bienvenido,</p>
+                  <h3 style={{ margin: 0, color: colors.text, fontSize: '18px' }}>{nombre}</h3>
+                </div>
+              </div>
+            )
+          })()}
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
               <div>
@@ -623,16 +666,8 @@ export default function GestorDronesPage() {
             <>
               <div ref={statsRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '15px', marginBottom: '20px' }}>
                 <div className="card card-hover" style={cardStyle}>
-                  <p style={statLabelStyle}>🔄 Movimientos</p>
-                  <p style={{ ...statValueStyle, color: '#58a6ff' }}>{estadisticas.movimientosEnRango}</p>
-                </div>
-                <div className="card card-hover" style={cardStyle}>
-                  <p style={statLabelStyle}>📦 Préstamos activos</p>
-                  <p style={{ ...statValueStyle, color: '#3fb950' }}>{estadisticas.prestamosActivos}</p>
-                </div>
-                <div className="card card-hover" style={cardStyle}>
-                  <p style={statLabelStyle}>⚠️ Atrasados (&gt;24h)</p>
-                  <p style={{ ...statValueStyle, color: '#f85149' }}>{estadisticas.prestamosAtrasados}</p>
+                  <p style={statLabelStyle}>🚁 Total drones</p>
+                  <p style={{ ...statValueStyle, color: colors.primary }}>{drones.length}</p>
                 </div>
                 {estadisticas.porEstado.map((e: any) => (
                   <div key={e.estado} className="card card-hover" style={cardStyle}>
@@ -640,11 +675,19 @@ export default function GestorDronesPage() {
                     <p style={{ ...statValueStyle, color: colorEstado(e.estado) }}>{e.cantidad}</p>
                   </div>
                 ))}
+                <div className="card card-hover" style={cardStyle}>
+                  <p style={statLabelStyle}>🔄 Movimientos</p>
+                  <p style={{ ...statValueStyle, color: '#58a6ff' }}>{estadisticas.movimientosEnRango}</p>
+                </div>
+                <div className="card card-hover" style={cardStyle}>
+                  <p style={statLabelStyle}>⚠️ Atrasados (&gt;24h)</p>
+                  <p style={{ ...statValueStyle, color: '#f85149' }}>{estadisticas.prestamosAtrasados}</p>
+                </div>
               </div>
 
-              <div ref={chartsRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '15px' }}>
+              <div ref={chartsRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '15px', marginBottom: '20px' }}>
                 <div className="card" style={{ backgroundColor: colors.bgCard, padding: '15px', border: `1px solid ${colors.border}` }}>
-                  <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Distribución por estado</h4>
+                  <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Estado de Flota</h4>
                   <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
                       <Pie data={estadisticas.porEstado.map((e: any) => ({ name: e.estado, value: e.cantidad }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} label>
@@ -657,29 +700,110 @@ export default function GestorDronesPage() {
                 </div>
 
                 <div className="card" style={{ backgroundColor: colors.bgCard, padding: '15px', border: `1px solid ${colors.border}` }}>
-                  <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Movimientos por día</h4>
+                  <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Ubicación de drones prestados</h4>
+                  {ubicacionesPrestamosEnCurso.length === 0 ? (
+                    <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: colors.textSecondary, fontSize: '12px', textAlign: 'center', padding: '0 20px' }}>
+                      Aún no hay ubicaciones registradas para los préstamos activos.
+                    </div>
+                  ) : (
+                    <div style={{ height: '220px', borderRadius: '6px', overflow: 'hidden' }}>
+                      <MapContainer center={CENTRO_ECUADOR} zoom={6} style={{ width: '100%', height: '100%' }}>
+                        <CapasBaseMapa predeterminada="satelital" />
+                        <AjustarLimitesMapa puntos={ubicacionesPrestamosEnCurso.map((p): [number, number] => [p.lat, p.lon])} />
+                        {ubicacionesPrestamosEnCurso.map((p) => (
+                          <CircleMarker key={p.id} center={[p.lat, p.lon]} radius={7} pathOptions={{ color: '#58a6ff', fillColor: '#58a6ff', fillOpacity: 0.85 }}>
+                            <Popup>
+                              <div style={{ fontSize: '12px' }}>
+                                <strong>🚁 {p.dronCodigo}</strong><br />
+                                {p.persona}<br />
+                                {duracion({ fechaSalida: p.fechaSalida })} en curso
+                              </div>
+                            </Popup>
+                          </CircleMarker>
+                        ))}
+                      </MapContainer>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div ref={detalleRef}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '15px', marginBottom: '20px' }}>
+                  <div className="card" style={{ backgroundColor: colors.bgCard, padding: '15px', border: `1px solid ${colors.border}` }}>
+                    <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>⚠️ Alertas Críticas</h4>
+                    {alertasAtrasados.length === 0 && dronesEnMantenimiento.length === 0 && (
+                      <p style={{ color: colors.textSecondary, fontSize: '12px' }}>Sin alertas activas.</p>
+                    )}
+                    {alertasAtrasados.map((p) => (
+                      <div key={p.id} style={{ padding: '8px 0', borderBottom: `1px solid ${colors.border}` }}>
+                        <p style={{ margin: 0, color: '#f85149', fontSize: '12px', fontWeight: 'bold' }}>Dron {p.dronCodigoInterno}</p>
+                        <p style={{ margin: 0, color: colors.textSecondary, fontSize: '11px' }}>Préstamo atrasado — {duracion(p)} con {p.usuarioSalidaNombre}</p>
+                      </div>
+                    ))}
+                    {dronesEnMantenimiento.map((d) => (
+                      <div key={d.id} style={{ padding: '8px 0', borderBottom: `1px solid ${colors.border}` }}>
+                        <p style={{ margin: 0, color: '#ffa657', fontSize: '12px', fontWeight: 'bold' }}>Dron {d.codigoInterno}</p>
+                        <p style={{ margin: 0, color: colors.textSecondary, fontSize: '11px' }}>En mantenimiento{d.observaciones ? ` — ${d.observaciones}` : ''}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="card" style={{ backgroundColor: colors.bgCard, padding: '15px', border: `1px solid ${colors.border}` }}>
+                    <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Últimas Actividades</h4>
+                    {eventosRecientesTodos.length === 0 && <p style={{ color: colors.textSecondary, fontSize: '12px' }}>Sin actividad registrada.</p>}
+                    {eventosRecientesTodos.slice(0, 8).map((e) => (
+                      <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 0', borderBottom: `1px solid ${colors.border}` }}>
+                        <span>{e.tipo === 'SALIDA' ? '↗️' : '↘️'}</span>
+                        <div>
+                          <p style={{ margin: 0, color: colors.text, fontSize: '12px', fontWeight: 'bold' }}>{e.dronCodigo} — {e.persona || '—'}</p>
+                          <p style={{ margin: 0, color: colors.textTertiary, fontSize: '11px' }}>{new Date(e.fecha).toLocaleString('es-EC')}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="card" style={{ backgroundColor: colors.bgCard, padding: '15px', border: `1px solid ${colors.border}`, marginBottom: '20px' }}>
+                  <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Histórico de estado de flota</h4>
                   <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={estadisticas.movimientosPorDia}>
+                    <AreaChart data={estadisticas.movimientosPorDia}>
                       <CartesianGrid strokeDasharray="3 3" stroke={colors.border} />
                       <XAxis dataKey="fecha" tick={{ fill: colors.textSecondary, fontSize: 10 }} />
                       <YAxis allowDecimals={false} tick={{ fill: colors.textSecondary, fontSize: 10 }} />
                       <Tooltip contentStyle={{ backgroundColor: colors.bgCard, border: `1px solid ${colors.border}` }} />
                       <Legend wrapperStyle={{ fontSize: '11px' }} />
-                      <Bar dataKey="salidas" fill="#58a6ff" />
-                      <Bar dataKey="entradas" fill="#3fb950" />
-                    </BarChart>
+                      <Area type="monotone" dataKey="salidas" stroke="#58a6ff" fill="#58a6ff" fillOpacity={0.25} />
+                      <Area type="monotone" dataKey="entradas" stroke="#3fb950" fill="#3fb950" fillOpacity={0.25} />
+                    </AreaChart>
                   </ResponsiveContainer>
                 </div>
 
                 <div className="card" style={{ backgroundColor: colors.bgCard, padding: '15px', border: `1px solid ${colors.border}` }}>
-                  <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Top operadores (por préstamos)</h4>
-                  {estadisticas.topUsuarios.length === 0 && <p style={{ color: colors.textSecondary, fontSize: '12px' }}>Sin datos en el rango.</p>}
-                  {estadisticas.topUsuarios.map((u: any, i: number) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < estadisticas.topUsuarios.length - 1 ? `1px solid ${colors.border}` : 'none' }}>
-                      <span style={{ color: colors.text, fontSize: '13px' }}>{u.nombre}</span>
-                      <span style={{ color: colors.primary, fontSize: '13px', fontWeight: 'bold' }}>{u.cantidad}</span>
-                    </div>
-                  ))}
+                  <h4 style={{ color: colors.text, margin: '0 0 10px 0', fontSize: '13px' }}>Inventario Completo</h4>
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ borderBottom: `2px solid ${colors.border}` }}>
+                          <th style={{ padding: '8px', textAlign: 'left', color: colors.textSecondary, fontSize: '12px' }}>Código</th>
+                          <th style={{ padding: '8px', textAlign: 'left', color: colors.textSecondary, fontSize: '12px' }}>Modelo</th>
+                          <th style={{ padding: '8px', textAlign: 'left', color: colors.textSecondary, fontSize: '12px' }}>Estado</th>
+                          <th style={{ padding: '8px', textAlign: 'left', color: colors.textSecondary, fontSize: '12px' }}>Tag RFID</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {drones.map((d) => (
+                          <tr key={d.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
+                            <td style={{ padding: '8px', color: colors.text, fontSize: '12px', fontWeight: 'bold' }}>{d.codigoInterno}</td>
+                            <td style={{ padding: '8px', color: colors.text, fontSize: '12px' }}>{d.modelo}</td>
+                            <td style={{ padding: '8px' }}>
+                              <span style={{ padding: '3px 7px', backgroundColor: colorEstado(d.estado), color: 'white', borderRadius: '4px', fontSize: '10px' }}>{d.estado}</span>
+                            </td>
+                            <td style={{ padding: '8px', color: colors.textSecondary, fontSize: '12px' }}>{d.tagRfid || '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </>

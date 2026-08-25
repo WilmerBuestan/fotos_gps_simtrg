@@ -29,6 +29,20 @@ Ya lo probé de punta a punta en este mismo formato (Docker con 3 piezas: base d
 
 Tú **no vas a instalar** Node, Postgres, ni nada de eso a mano. Solo instalas **Docker**, copias el proyecto, y Docker arma las 3 cajitas solo. Eso es lo bueno de que ya esté "dockerizado".
 
+**Ya subí todo el trabajo de esta sesión a tu GitHub** (`WilmerBuestan/fotos_gps_simtrg`, rama `main`) — el `git clone` del paso 9 va a traer la versión completa, con Gestor de Drones, perfiles, y el Docker del frontend incluidos.
+
+### ¿Por qué el frontend también en Docker, sin interfaz gráfica?
+
+Tenías razón en desconfiar de esa parte — antes de esta sesión el frontend **no** estaba preparado para producción, solo corría con `npm run dev` (el modo de desarrollo, pensado para tu laptop mientras programas, no para dejarlo prendido solo). Evalué 3 formas de resolverlo:
+
+| Opción | Cómo funciona | Por qué sí/no |
+|---|---|---|
+| Seguir con `npm run dev` en el servidor | Dejar corriendo el modo desarrollo con un gestor de procesos (pm2, systemd) | ❌ No es para esto: más lento, usa más memoria, no está pensado para quedarse prendido meses. |
+| Servir los archivos con un programa simple (ej. `serve`) | `npm run build` + un paquete liviano que sirve los archivos | ⚠️ Funciona, pero no sabe redirigir `/api` y `/uploads` al backend — tocaría reescribir esas rutas en el código. |
+| **Docker + nginx (lo que implementé)** | `npm run build` empaquetado dentro de una imagen Docker con nginx, que sirve los archivos y reenvía `/api`/`/uploads` al backend | ✅ Es exactamente lo que ya usan `backend` y `postgres` — mismo patrón, mismo comando (`docker compose up`), sin instalar nada aparte, sin interfaz gráfica (nginx es un servidor web, no un programa con ventanas). |
+
+Elegí la tercera porque es la que menos piezas nuevas te obliga a aprender: **todo el sistema se maneja con los mismos 2-3 comandos de Docker**, sin mezclar herramientas distintas para cada pedazo. Ya lo armé, lo probé de punta a punta, y funciona — lo que sigue en esta guía ya lo verificado.
+
 ---
 
 ## 2. Qué computadora pedir
@@ -162,19 +176,20 @@ Deberías ver números de versión en ambos, sin errores.
 
 ## 9. Copiar el proyecto al servidor
 
-La forma más simple si tu proyecto está en GitHub (o similar):
+Tu proyecto ya está en GitHub, así que es así de simple:
 
 ```bash
 sudo apt install -y git
-git clone <URL_DE_TU_REPOSITORIO>
-cd <nombre-de-la-carpeta>
+git clone https://github.com/WilmerBuestan/fotos_gps_simtrg.git
+cd fotos_gps_simtrg
 ```
 
-Si tu proyecto **no** está en un repositorio remoto todavía, cópialo directo desde tu computadora al servidor (ejecuta esto desde TU computadora, no desde el servidor):
+(Si el repositorio es privado, te va a pedir usuario y una contraseña — GitHub ya no acepta tu contraseña normal ahí, necesitas un "Personal Access Token": lo generas en GitHub → tu foto de perfil → Settings → Developer settings → Personal access tokens → Generate new token, y lo usas como si fuera la contraseña. Si te trabas en esto, dime y lo resolvemos juntos.)
+
+Alternativa si algún día no tienes el repositorio a mano: copiar la carpeta directo desde tu computadora al servidor (ejecuta esto desde TU computadora, no desde el servidor):
 ```bash
-scp -r /ruta/a/Gmree tu_usuario@10.101.27.XXX:~/
+scp -r /ruta/a/Gmree tu_usuario@10.101.27.XXX:~/fotos_gps_simtrg
 ```
-Esto copia toda la carpeta del proyecto al servidor por la red.
 
 ---
 
@@ -303,7 +318,7 @@ Esto es importante: si el disco del servidor falla algún día, quieres poder re
 Cuando tú (o yo, ayudándote en una sesión futura) hagan cambios al código y quieras subir la versión nueva al servidor:
 
 ```bash
-cd ~/Gmree/simtrg-backend
+cd ~/fotos_gps_simtrg/simtrg-backend
 git pull                          # trae los cambios nuevos
 docker compose build backend frontend
 docker compose up -d --force-recreate backend frontend
@@ -326,7 +341,48 @@ La base de datos (`postgres`) normalmente no hace falta reconstruirla — solo b
 
 ---
 
-## 17. Checklist final
+## 17. Solución de problemas comunes
+
+Es tu primera vez haciendo esto, así que es normal tropezar con algo. Antes de preocuparte, revisa esta lista:
+
+**`docker compose up -d --build` falla o un contenedor no arranca**
+```bash
+docker compose logs backend --tail 100
+docker compose logs frontend --tail 100
+docker compose logs postgres --tail 100
+```
+El error casi siempre está en las últimas líneas. Cosas típicas:
+- `"Error: connect ECONNREFUSED"` en el backend → la base de datos todavía no terminó de arrancar, espera 20-30 segundos y prueba `docker compose up -d` de nuevo (no hace falta `--build` otra vez).
+- Algo sobre `JWT_SECRET` o variables vacías → revisa que el `.env` del paso 10 esté completo y guardado.
+
+**Un puerto ya está en uso** (`bind: address already in use`)
+```bash
+sudo ss -tlnp | grep ':80 '
+```
+Eso te dice qué programa ya está usando ese puerto. En un Ubuntu Server recién instalado esto casi nunca pasa (no debería haber nada más corriendo), pero si pasa, dime qué te muestra ese comando y lo resolvemos.
+
+**No puedes entrar desde otro dispositivo a `http://<IP>/`**
+1. Confirma que el otro dispositivo esté en la **misma red** (mismo wifi/router) que el servidor.
+2. Desde el otro dispositivo, prueba hacer ping: `ping <IP_DEL_SERVIDOR>` — si no responde, es un tema de red, no de la aplicación.
+3. Confirma que el firewall del servidor permite el puerto 80 (paso 16: `sudo ufw status` debería listarlo).
+
+**Inicias sesión pero algo no carga bien (fotos, mapas, etc.)**
+```bash
+docker logs simtrg_backend --tail 100
+```
+Casi siempre es una variable del `.env` mal copiada (revisa que no haya espacios de más ni comillas donde no van).
+
+**Se llenó el disco**
+```bash
+df -h
+```
+Busca la línea de `/` — si está por encima de 90%, es momento de revisar cuántas fotos hay acumuladas o ampliar el disco. Con 1 TB esto debería tardar años en pasar (ver sección 3).
+
+**Si te trabas en algo que no está aquí**: copia el mensaje de error completo (con `docker logs`) y tráemelo en la próxima sesión — con eso puedo diagnosticar exactamente qué pasó.
+
+---
+
+## 18. Checklist final
 
 - [ ] Computadora con Ubuntu Server instalado, conectada por cable de red.
 - [ ] IP fija reservada (paso 7).

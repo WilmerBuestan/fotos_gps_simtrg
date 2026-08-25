@@ -9,18 +9,27 @@ export interface CreateDronFisicoDto {
   codigoInterno: string;
   modelo: string;
   marca?: string | null;
+  version?: string | null;
   tagRfid?: string | null;
   observaciones?: string | null;
+  anioCompra?: number | null;
 }
 
 export interface UpdateDronFisicoDto {
   codigoInterno?: string;
   modelo?: string;
   marca?: string | null;
+  version?: string | null;
   tagRfid?: string | null;
   estado?: EstadoDronFisico;
   observaciones?: string | null;
   activo?: boolean;
+  foto?: string | null;
+  anioCompra?: number | null;
+  horasVuelo?: number;
+  bateriaPorcentaje?: number | null;
+  bateriaActualizada?: Date | null;
+  ubicacionBodega?: string | null;
 }
 
 export abstract class IDronFisicoRepository {

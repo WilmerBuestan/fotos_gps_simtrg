@@ -23,6 +23,11 @@ export interface ActualizarUsuarioInputDto {
   rol?: RolUsuario;
   activo?: boolean;
   tagRfid?: string | null;
+  foto?: string | null;
+  grado?: string | null;
+  fechaNacimiento?: Date | null;
+  cedula?: string | null;
+  chapa?: string | null;
 }
 
 export interface ActualizarUsuarioOutputDto {
@@ -32,6 +37,11 @@ export interface ActualizarUsuarioOutputDto {
   rol: string;
   activo: boolean;
   tagRfid?: string;
+  foto?: string;
+  grado?: string;
+  fechaNacimiento?: Date;
+  cedula?: string;
+  chapa?: string;
 }
 
 const SALT_ROUNDS = 12;
@@ -80,6 +90,11 @@ export class ActualizarUsuarioUseCase {
       rol: input.rol,
       activo: input.activo,
       tagRfid: input.tagRfid,
+      foto: input.foto,
+      grado: input.grado,
+      fechaNacimiento: input.fechaNacimiento,
+      cedula: input.cedula,
+      chapa: input.chapa,
     });
 
     return {
@@ -89,6 +104,11 @@ export class ActualizarUsuarioUseCase {
       rol: actualizado.rol,
       activo: actualizado.activo,
       tagRfid: actualizado.tagRfid,
+      foto: actualizado.foto,
+      grado: actualizado.grado,
+      fechaNacimiento: actualizado.fechaNacimiento,
+      cedula: actualizado.cedula,
+      chapa: actualizado.chapa,
     };
   }
 

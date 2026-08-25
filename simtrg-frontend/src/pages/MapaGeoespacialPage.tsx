@@ -16,16 +16,16 @@ L.Icon.Default.mergeOptions({
 
 export default function MapaGeoespacialPage() {
   const { colors } = useTheme()
-  const [fotos, setFotos] = useState([])
-  const [eventos, setEventos] = useState([])
-  const [filtros, setFiltros] = useState({ fechas: [], operadores: [] })
-  const [operadoresMap, setOperadoresMap] = useState({})
+  const [fotos, setFotos] = useState<any[]>([])
+  const [eventos, setEventos] = useState<any[]>([])
+  const [filtros, setFiltros] = useState<{ fechas: string[]; operadores: any[] }>({ fechas: [], operadores: [] })
+  const [operadoresMap, setOperadoresMap] = useState<Record<string, string>>({})
   const [mapView, setMapView] = useState('fotos')
   const [selectedFechaInicio, setSelectedFechaInicio] = useState('')
   const [selectedFechaFin, setSelectedFechaFin] = useState('')
   const [selectedOperador, setSelectedOperador] = useState('')
   const [loading, setLoading] = useState(true)
-  const [selectedMarker, setSelectedMarker] = useState(null)
+  const [selectedMarker, setSelectedMarker] = useState<any>(null)
   const [selectedFotoIndex, setSelectedFotoIndex] = useState(0)
   const [showPreview, setShowPreview] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
@@ -46,7 +46,7 @@ export default function MapaGeoespacialPage() {
         API.get('/drones'),
         API.get('/eventos'),
       ])
-      setFotos(fotosRes.data.filter(f => f.latitud && f.longitud) || [])
+      setFotos(fotosRes.data.filter((f: any) => f.latitud && f.longitud) || [])
       setEventos(eventosRes.data || [])
     } catch (err) {
       console.error('Error:', err)
@@ -67,8 +67,8 @@ export default function MapaGeoespacialPage() {
   const cargarOperadores = async () => {
     try {
       const res = await API.get('/usuarios')
-      const map = {}
-      res.data.forEach(u => {
+      const map: Record<string, string> = {}
+      res.data.forEach((u: any) => {
         map[u.id] = u.nombreCompleto || u.username
       })
       setOperadoresMap(map)
@@ -97,8 +97,8 @@ export default function MapaGeoespacialPage() {
   })
 
   const agruparFotosPorUbicacion = () => {
-    const grupos = {}
-    fotosFiltradas.forEach(foto => {
+    const grupos: Record<string, { lat: number; lon: number; fotos: any[] }> = {}
+    fotosFiltradas.forEach((foto: any) => {
       const key = `${foto.latitud.toFixed(4)},${foto.longitud.toFixed(4)}`
       if (!grupos[key]) {
         grupos[key] = { lat: foto.latitud, lon: foto.longitud, fotos: [] }
@@ -108,7 +108,7 @@ export default function MapaGeoespacialPage() {
     return Object.values(grupos)
   }
 
-  const eventosFiltrados = eventos.filter(evento => {
+  const eventosFiltrados = eventos.filter((evento: any) => {
     if (selectedFechaInicio || selectedFechaFin) {
       const fechaEvento = new Date(evento.fechaHora)
       if (selectedFechaInicio) {
@@ -261,7 +261,7 @@ export default function MapaGeoespacialPage() {
         {/* Panel de detalles */}
         {selectedMarker && (() => {
           return (
-            <div className="card animate-in" style={{ position: 'absolute', bottom: '20px', right: '20px', backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, padding: '15px', width: '380px', maxHeight: '600px', overflowY: 'auto', boxShadow: 'var(--shadow-md)', zIndex: 1000 }}>
+            <div className="card animate-in" style={{ position: 'absolute', bottom: '20px', right: '20px', backgroundColor: colors.bgCard, border: `1px solid ${colors.border}`, padding: '15px', width: '380px', maxWidth: 'calc(100vw - 40px)', maxHeight: '60vh', overflowY: 'auto', boxShadow: 'var(--shadow-md)', zIndex: 1000 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                 <h3 style={{ color: colors.text, margin: '0', fontSize: '14px', fontWeight: 'bold' }}>{selectedMarker.tipo === 'foto' ? '📸 Foto' : '⚠️ Evento'}</h3>
                 <button onClick={() => setSelectedMarker(null)} style={{ backgroundColor: 'transparent', border: 'none', color: colors.text, fontSize: '18px', cursor: 'pointer' }}>✕</button>
@@ -278,7 +278,7 @@ export default function MapaGeoespacialPage() {
 
                   {selectedMarker.fotos.length > 1 && (
                     <div style={{ display: 'flex', gap: '8px', marginBottom: '15px', justifyContent: 'center' }}>
-                      {selectedMarker.fotos.map((_, i) => (
+                      {selectedMarker.fotos.map((_: any, i: number) => (
                         <button key={i} onClick={() => setSelectedFotoIndex(i)} style={{ width: '30px', height: '30px', backgroundColor: selectedFotoIndex === i ? '#58a6ff' : colors.bg, color: colors.text, border: `1px solid ${colors.border}`, borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '12px' }}>
                           {i + 1}
                         </button>

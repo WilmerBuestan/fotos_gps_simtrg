@@ -10,6 +10,7 @@ import { AuditoriaLogOrmEntity } from './entities/auditoria-log.orm-entity';
 import { DronFisicoOrmEntity } from './entities/dron-fisico.orm-entity';
 import { PrestamoDronOrmEntity } from './entities/prestamo-dron.orm-entity';
 import { MovimientoPendienteOrmEntity } from './entities/movimiento-pendiente.orm-entity';
+import { TareaMantenimientoOrmEntity } from './entities/tarea-mantenimiento.orm-entity';
 import { AdminSeeder } from './seeds/admin.seed';
 
 @Module({
@@ -33,6 +34,7 @@ import { AdminSeeder } from './seeds/admin.seed';
           DronFisicoOrmEntity,
           PrestamoDronOrmEntity,
           MovimientoPendienteOrmEntity,
+          TareaMantenimientoOrmEntity,
         ],
         migrations: ['dist/infrastructure/database/migrations/*.js'],
         migrationsRun: true,

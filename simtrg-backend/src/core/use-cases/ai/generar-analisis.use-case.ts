@@ -68,7 +68,7 @@ export class GenerarAnalisisUseCase {
     const sujeto = input.tipo === 'fotos' ? 'fotografías capturadas por drones' : 'eventos/incidentes tácticos';
 
     const usuario = input.usuarioId ? await this.usuarioRepository.findById(input.usuarioId) : null;
-    const tratamiento = resolverTratamiento(usuario?.nombre);
+    const tratamiento = resolverTratamiento(usuario?.grado || usuario?.nombre);
 
     const prompt = [
       `Eres un analista de inteligencia técnica que apoya a una unidad militar (SIMTRG, 29 BIM - GMREC) a interpretar datos operacionales.`,

@@ -4,7 +4,7 @@
 // CRUD del inventario (ADMINISTRADOR y BODEGUERO).
 // ============================================================
 
-import { Injectable, Inject, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
 import {
   IDronFisicoRepository,
   CreateDronFisicoDto,
@@ -19,6 +19,9 @@ export class GestionDronesFisicosUseCase {
   ) {}
 
   async crear(data: CreateDronFisicoDto) {
+    if (!data.marca?.trim() || !data.version?.trim()) {
+      throw new BadRequestException('Marca y versión son obligatorias para registrar un dron.');
+    }
     const existente = await this.dronRepo.findByCodigoInterno(data.codigoInterno);
     if (existente) {
       throw new ConflictException(`Ya existe un dron con código ${data.codigoInterno}.`);

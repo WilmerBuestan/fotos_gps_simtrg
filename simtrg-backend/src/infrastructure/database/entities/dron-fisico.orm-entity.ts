@@ -45,6 +45,27 @@ export class DronFisicoOrmEntity {
   @Column({ default: true })
   activo: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  foto: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  version: string | null;
+
+  @Column({ name: 'anio_compra', type: 'integer', nullable: true })
+  anioCompra: number | null;
+
+  @Column({ name: 'horas_vuelo', type: 'numeric', default: 0 })
+  horasVuelo: number;
+
+  @Column({ name: 'bateria_porcentaje', type: 'integer', nullable: true })
+  bateriaPorcentaje: number | null;
+
+  @Column({ name: 'bateria_actualizada', type: 'timestamptz', nullable: true })
+  bateriaActualizada: Date | null;
+
+  @Column({ name: 'ubicacion_bodega', type: 'varchar', nullable: true })
+  ubicacionBodega: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

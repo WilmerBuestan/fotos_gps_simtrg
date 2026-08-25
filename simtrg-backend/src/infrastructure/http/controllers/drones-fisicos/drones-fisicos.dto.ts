@@ -6,10 +6,15 @@ import {
   IsBoolean,
   IsUUID,
   IsDateString,
+  IsInt,
+  IsNumber,
+  Min,
+  Max,
   MaxLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EstadoDronFisico } from '../../../../core/domain/entities/dron-fisico.entity';
+import { PrioridadTarea } from '../../../../core/domain/entities/tarea-mantenimiento.entity';
 
 export class CrearDronFisicoDto {
   @ApiProperty({ example: 'DRN-001', description: 'Código interno único del dron' })
@@ -24,11 +29,17 @@ export class CrearDronFisicoDto {
   @MaxLength(100)
   modelo: string;
 
-  @ApiPropertyOptional({ example: 'DJI' })
-  @IsOptional()
+  @ApiProperty({ example: 'DJI' })
   @IsString()
+  @IsNotEmpty()
   @MaxLength(100)
-  marca?: string;
+  marca: string;
+
+  @ApiProperty({ example: 'RTK v2' })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  version: string;
 
   @ApiPropertyOptional({ example: '0B7F1A22', description: 'UID de la tarjeta RFID del dron' })
   @IsOptional()
@@ -40,6 +51,11 @@ export class CrearDronFisicoDto {
   @IsOptional()
   @IsString()
   observaciones?: string;
+
+  @ApiPropertyOptional({ example: 2024 })
+  @IsOptional()
+  @IsInt()
+  anioCompra?: number;
 }
 
 export class ActualizarDronFisicoDto {
@@ -64,6 +80,12 @@ export class ActualizarDronFisicoDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @MaxLength(100)
+  version?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   @MaxLength(50)
   tagRfid?: string;
 
@@ -81,6 +103,30 @@ export class ActualizarDronFisicoDto {
   @IsOptional()
   @IsBoolean()
   activo?: boolean;
+
+  @ApiPropertyOptional({ example: 2024 })
+  @IsOptional()
+  @IsInt()
+  anioCompra?: number;
+
+  @ApiPropertyOptional({ example: 128.5, description: 'Horas de vuelo acumuladas (vitácora manual)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  horasVuelo?: number;
+
+  @ApiPropertyOptional({ example: 78, description: 'Porcentaje de batería del último reporte manual' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(100)
+  bateriaPorcentaje?: number;
+
+  @ApiPropertyOptional({ example: 'Banco 3', description: 'Ubicación física dentro de la bodega' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  ubicacionBodega?: string;
 }
 
 export class MovimientoDispositivoDto {
@@ -135,6 +181,36 @@ export class FiltroEstadisticasQueryDto {
   @IsOptional()
   @IsDateString()
   hasta?: string;
+}
+
+export class CrearTareaMantenimientoDto {
+  @ApiProperty({ example: 'Reemplazo de motor delantero derecho' })
+  @IsString()
+  @IsNotEmpty()
+  descripcion: string;
+
+  @ApiPropertyOptional({ enum: PrioridadTarea, example: PrioridadTarea.MEDIA })
+  @IsOptional()
+  @IsEnum(PrioridadTarea)
+  prioridad?: PrioridadTarea;
+
+  @ApiPropertyOptional({ example: 'Sgto. Ramírez' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  tecnicoAsignado?: string;
+}
+
+export class FiltroTareasMantenimientoQueryDto {
+  @ApiPropertyOptional({ description: 'Filtrar por dron' })
+  @IsOptional()
+  @IsUUID()
+  dronId?: string;
+
+  @ApiPropertyOptional({ description: 'Si es true, incluye también las completadas (por defecto solo pendientes)' })
+  @IsOptional()
+  @IsBoolean()
+  incluirCompletadas?: boolean;
 }
 
 export class FiltroPrestamosQueryDto {

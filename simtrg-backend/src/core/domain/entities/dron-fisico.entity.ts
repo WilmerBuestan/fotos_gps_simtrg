@@ -24,6 +24,13 @@ export class DronFisicoDomain {
     public activo: boolean,
     public readonly createdAt: Date,
     public updatedAt: Date,
+    public foto?: string | null,
+    public version?: string | null,
+    public anioCompra?: number | null,
+    public horasVuelo?: number,
+    public bateriaPorcentaje?: number | null,
+    public bateriaActualizada?: Date | null,
+    public ubicacionBodega?: string | null,
   ) {}
 
   // ---- Reglas de negocio ----

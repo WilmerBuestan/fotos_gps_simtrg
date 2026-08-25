@@ -14,8 +14,10 @@ import { AiModule } from './infrastructure/http/modules/ai.module';
 import { DronesFisicosModule } from './infrastructure/http/modules/drones-fisicos.module';
 import { AuditoriaInterceptor } from './infrastructure/http/interceptors/auditoria.interceptor';
 import { DomainExceptionFilter } from './infrastructure/http/filters/domain-exception.filter';
+import { AppController } from './app.controller';
 
 @Module({
+  controllers: [AppController],
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     ThrottlerModule.forRoot([{ ttl: 60_000, limit: 1000 }]),

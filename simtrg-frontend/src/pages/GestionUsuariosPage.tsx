@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import API from '../services/api'
 import { useTheme } from '../contexts/ThemeContext'
 import UbicacionMiniMapa from '../components/UbicacionMiniMapa'
+import { getImageUrl } from '../utils/media'
 
 const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}')
 
@@ -14,6 +15,10 @@ const initialFormData = {
   rol: 'OPERADOR',
   activo: true,
   tagRfid: '',
+  grado: '',
+  fechaNacimiento: '',
+  cedula: '',
+  chapa: '',
 }
 
 export default function GestionUsuariosPage() {
@@ -25,6 +30,10 @@ export default function GestionUsuariosPage() {
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState<any>(initialFormData)
   const [usuarioEditando, setUsuarioEditando] = useState<any>(null)
+  const [archivoFoto, setArchivoFoto] = useState<File | null>(null)
+  const [previewFoto, setPreviewFoto] = useState<string | null>(null)
+  const [subiendoFoto, setSubiendoFoto] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const editando = formData.id !== null
 
@@ -60,8 +69,14 @@ export default function GestionUsuariosPage() {
       rol: usr.rol,
       activo: usr.activo,
       tagRfid: usr.tagRfid || '',
+      grado: usr.grado || '',
+      fechaNacimiento: usr.fechaNacimiento ? usr.fechaNacimiento.slice(0, 10) : '',
+      cedula: usr.cedula || '',
+      chapa: usr.chapa || '',
     })
     setUsuarioEditando(usr)
+    setArchivoFoto(null)
+    setPreviewFoto(null)
     setError('')
     setShowModal(true)
   }
@@ -70,7 +85,16 @@ export default function GestionUsuariosPage() {
     setShowModal(false)
     setFormData(initialFormData)
     setUsuarioEditando(null)
+    setArchivoFoto(null)
+    setPreviewFoto(null)
     setError('')
+  }
+
+  const handleFotoChange = (e: any) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setArchivoFoto(file)
+    setPreviewFoto(URL.createObjectURL(file))
   }
 
   const handleSubmit = async (e: any) => {
@@ -87,9 +111,20 @@ export default function GestionUsuariosPage() {
           rol: formData.rol,
           activo: formData.activo,
           tagRfid,
+          grado: formData.grado.trim() || undefined,
+          fechaNacimiento: formData.fechaNacimiento || undefined,
+          cedula: formData.cedula.trim() || undefined,
+          chapa: formData.chapa.trim() || undefined,
         }
         if (formData.password) payload.nuevaPassword = formData.password
         await API.patch(`/usuarios/${formData.id}`, payload)
+        if (archivoFoto) {
+          setSubiendoFoto(true)
+          const fd = new FormData()
+          fd.append('foto', archivoFoto)
+          await API.post(`/usuarios/${formData.id}/foto`, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+          setSubiendoFoto(false)
+        }
       } else {
         await API.post('/usuarios', {
           nombre: formData.nombre,
@@ -258,6 +293,53 @@ export default function GestionUsuariosPage() {
                     </select>
                   </div>
                 )}
+              </div>
+
+              {editando && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      width: '52px', height: '52px', borderRadius: '50%', cursor: 'pointer', flexShrink: 0,
+                      backgroundColor: colors.primary, color: isDarkMode ? '#0d1117' : '#ffffff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold',
+                      border: `2px solid ${colors.border}`, overflow: 'hidden',
+                      backgroundImage: (previewFoto || getImageUrl(usuarioEditando?.foto)) ? `url(${previewFoto || getImageUrl(usuarioEditando?.foto)})` : undefined,
+                      backgroundSize: 'cover', backgroundPosition: 'center',
+                    }}
+                  >
+                    {!(previewFoto || usuarioEditando?.foto) && '👤'}
+                  </div>
+                  <div>
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="btn" style={{ padding: '6px 12px', backgroundColor: 'transparent', color: colors.primary, border: `1px solid ${colors.primary}`, borderRadius: '5px', fontSize: '11px', cursor: 'pointer' }}>
+                      📷 Cambiar foto
+                    </button>
+                    <input ref={fileInputRef} type="file" accept="image/jpeg,image/jpg,image/png" onChange={handleFotoChange} style={{ display: 'none' }} />
+                    {subiendoFoto && <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: colors.textSecondary }}>Subiendo...</p>}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                <div>
+                  <label style={labelStyle}>Grado</label>
+                  <input type="text" value={formData.grado} onChange={(e) => setFormData({ ...formData, grado: e.target.value })} style={inputStyle} placeholder="Ej. Capt, Tnte" />
+                </div>
+                <div>
+                  <label style={labelStyle}>Chapa (alias)</label>
+                  <input type="text" value={formData.chapa} onChange={(e) => setFormData({ ...formData, chapa: e.target.value })} style={inputStyle} />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '10px' }}>
+                <div>
+                  <label style={labelStyle}>Fecha de nacimiento</label>
+                  <input type="date" value={formData.fechaNacimiento} onChange={(e) => setFormData({ ...formData, fechaNacimiento: e.target.value })} style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>Cédula</label>
+                  <input type="text" value={formData.cedula} onChange={(e) => setFormData({ ...formData, cedula: e.target.value })} style={inputStyle} />
+                </div>
               </div>
 
               <div style={{ marginBottom: '18px' }}>

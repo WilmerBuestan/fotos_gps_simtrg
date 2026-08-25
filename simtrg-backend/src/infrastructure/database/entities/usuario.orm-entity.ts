@@ -68,6 +68,21 @@ export class UsuarioOrmEntity {
   @Column({ name: 'tag_rfid', type: 'varchar', nullable: true })
   tagRfid: string | null;
 
+  @Column({ type: 'varchar', nullable: true })
+  foto: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  grado: string | null;
+
+  @Column({ name: 'fecha_nacimiento', type: 'date', nullable: true })
+  fechaNacimiento: Date | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  cedula: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  chapa: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

@@ -16,15 +16,21 @@ import {
   Body,
   Param,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
@@ -35,8 +41,21 @@ import { CrearUsuarioUseCase } from '../../../../core/use-cases/users/crear-usua
 import { ObtenerUsuariosUseCase } from '../../../../core/use-cases/users/obtener-usuarios.use-case';
 import { ActualizarUsuarioUseCase } from '../../../../core/use-cases/users/actualizar-usuario.use-case';
 import { EliminarUsuarioUseCase } from '../../../../core/use-cases/users/eliminar-usuario.use-case';
-import { CrearUsuarioDto, ActualizarUsuarioDto, ActualizarTagUsuarioDto } from './users.dto';
+import {
+  CrearUsuarioDto,
+  ActualizarUsuarioDto,
+  ActualizarTagUsuarioDto,
+  ActualizarMiPerfilDto,
+} from './users.dto';
 import { JwtPayload } from '../../../../shared/types/jwt-payload.type';
+import { crearInterceptorFotoPerfil } from '../../utils/foto-perfil.interceptor';
+
+const TODOS_LOS_ROLES = [
+  RolUsuario.OPERADOR,
+  RolUsuario.SUPERVISOR,
+  RolUsuario.ADMINISTRADOR,
+  RolUsuario.BODEGUERO,
+];
 
 @ApiTags('Usuarios')
 @ApiBearerAuth()
@@ -68,6 +87,51 @@ export class UsersController {
     });
   }
 
+  @Patch('mi-perfil')
+  @Roles(...TODOS_LOS_ROLES)
+  @ApiOperation({ summary: 'Editar mi propio perfil (nombre, apellido, grado, fecha de nacimiento, cédula, chapa)' })
+  @ApiResponse({ status: 200, description: 'Perfil actualizado.' })
+  async actualizarMiPerfil(
+    @Body() dto: ActualizarMiPerfilDto,
+    @UsuarioActual() user: JwtPayload,
+  ) {
+    return this.actualizarUsuarioUseCase.execute({
+      id: user.sub,
+      actorId: user.sub,
+      nombre: dto.nombre,
+      apellido: dto.apellido,
+      grado: dto.grado,
+      fechaNacimiento: dto.fechaNacimiento ? new Date(dto.fechaNacimiento) : undefined,
+      cedula: dto.cedula,
+      chapa: dto.chapa,
+    });
+  }
+
+  @Post(':id/foto')
+  @Roles(...TODOS_LOS_ROLES)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Subir foto de perfil (el propio usuario, o el ADMIN para cualquiera)' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { foto: { type: 'string', format: 'binary' } } } })
+  @UseInterceptors(crearInterceptorFotoPerfil('usuarios'))
+  async subirFoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() archivo: Express.Multer.File,
+    @UsuarioActual() user: JwtPayload,
+  ) {
+    if (user.sub !== id && user.rol !== RolUsuario.ADMINISTRADOR) {
+      throw new ForbiddenException('Solo puedes subir tu propia foto de perfil (o ser ADMINISTRADOR).');
+    }
+    if (!archivo) {
+      throw new BadRequestException('No se envió ningún archivo.');
+    }
+    return this.actualizarUsuarioUseCase.execute({
+      id,
+      actorId: user.sub,
+      foto: archivo.path,
+    });
+  }
+
   @Get()
   @Roles(RolUsuario.SUPERVISOR, RolUsuario.ADMINISTRADOR, RolUsuario.BODEGUERO)
   @ApiOperation({ summary: '[SUPERVISOR+/BODEGUERO] Listar todos los usuarios' })
@@ -77,7 +141,7 @@ export class UsersController {
   }
 
   @Get('mi-perfil-completo')
-  @Roles(RolUsuario.OPERADOR, RolUsuario.SUPERVISOR, RolUsuario.ADMINISTRADOR)
+  @Roles(...TODOS_LOS_ROLES)
   @ApiOperation({ summary: 'Obtener perfil completo del usuario actual' })
   async miPerfil(@UsuarioActual() user: JwtPayload) {
     return this.obtenerUsuariosUseCase.findById(user.sub);
@@ -129,6 +193,10 @@ export class UsersController {
       rol: dto.rol,
       activo: dto.activo,
       tagRfid: dto.tagRfid,
+      grado: dto.grado,
+      fechaNacimiento: dto.fechaNacimiento ? new Date(dto.fechaNacimiento) : undefined,
+      cedula: dto.cedula,
+      chapa: dto.chapa,
     });
   }
 

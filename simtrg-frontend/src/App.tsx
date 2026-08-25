@@ -11,8 +11,10 @@ import GestionUsuariosPage from './pages/GestionUsuariosPage'
 import CatalogosPage from './pages/CatalogosPage'
 import LogsPage from './pages/LogsPage'
 import GestorDronesPage from './pages/GestorDronesPage'
+import MiPerfilPage from './pages/MiPerfilPage'
 import { useTheme } from './contexts/ThemeContext'
 import { obtenerGeolocalizacion } from './utils/geolocalizacion'
+import { getImageUrl } from './utils/media'
 
 // El bodeguero solo administra inventario de drones — no tiene por qué
 // aterrizar en el Dashboard táctico, que además no puede ver.
@@ -118,7 +120,9 @@ export default function App() {
           marginBottom: '20px',
           paddingBottom: '15px',
           borderBottom: `1px solid ${colors.border}`,
+          textAlign: 'center',
         }}>
+          <img src="/login/emblema.png" alt="Emblema Unidad" style={{ width: '52px', height: '52px', objectFit: 'contain', marginBottom: '8px' }} />
           <h2 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 'bold', color: colors.primary }}>SIMTRG</h2>
           <p style={{ margin: '0', fontSize: '11px', color: colors.textTertiary }}>Sistema de Monitoreo Táctico</p>
         </div>
@@ -370,8 +374,11 @@ export default function App() {
                 fontWeight: 'bold',
                 fontSize: '12px',
                 flexShrink: 0,
+                backgroundImage: usuario.foto ? `url(${getImageUrl(usuario.foto)})` : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
               }}>
-                {usuario.nombreCompleto.charAt(0)}
+                {!usuario.foto && usuario.nombreCompleto.charAt(0)}
               </div>
               <span className="hide-on-mobile" style={{ fontSize: '13px' }}>{usuario.nombreCompleto}</span>
             </button>
@@ -391,7 +398,14 @@ export default function App() {
               }}>
                 <p style={{ margin: '0 0 8px 0', fontSize: '12px', fontWeight: 'bold', color: colors.text }}>{usuario.nombreCompleto}</p>
                 <p style={{ margin: '0 0 8px 0', fontSize: '12px', color: colors.textSecondary }}>{usuario.username}</p>
-                <p style={{ margin: '0', fontSize: '11px', color: colors.textTertiary }}>🎯 {usuario.rol}</p>
+                <p style={{ margin: '0 0 10px 0', fontSize: '11px', color: colors.textTertiary }}>🎯 {usuario.rol}</p>
+                <button
+                  onClick={() => { setCurrentPage('mi-perfil'); setShowProfile(false) }}
+                  className="btn"
+                  style={{ width: '100%', padding: '8px', backgroundColor: colors.bgTertiary, border: `1px solid ${colors.border}`, color: colors.text, borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  👤 Ver mi perfil
+                </button>
               </div>
             )}
           </div>
@@ -404,17 +418,17 @@ export default function App() {
           overflowX: 'hidden',
           backgroundColor: colors.bg,
         }}>
-          {currentPage === 'dashboard' && <div className="animate-in" style={{ padding: '20px' }}><DashboardPage /></div>}
-          {currentPage === 'mapa' && <div className="animate-in" style={{ height: '100%' }}><MapaGeoespacialPage /></div>}
-          {currentPage === 'fotos' && <div className="animate-in" style={{ padding: '20px' }}><FotosPage /></div>}
-          {currentPage === 'eventos' && <div className="animate-in" style={{ padding: '20px' }}><EventosPage /></div>}
-          {currentPage === 'heatmap' && <div className="animate-in" style={{ height: '100%' }}><HeatmapPage /></div>}
-          {currentPage === 'usuarios' && <div className="animate-in" style={{ padding: '20px' }}><UsuariosPage /></div>}
-          {currentPage === 'gestion-usuarios' && <div className="animate-in" style={{ padding: '20px' }}><GestionUsuariosPage /></div>}
-          {currentPage === 'catalogos' && <div className="animate-in" style={{ padding: '20px' }}><CatalogosPage /></div>}
-          {currentPage === 'logs' && <div className="animate-in" style={{ padding: '20px' }}><LogsPage /></div>}
+          {currentPage === 'dashboard' && <div className="page-fade" style={{ padding: '20px' }}><DashboardPage /></div>}
+          {currentPage === 'mapa' && <div className="page-fade" style={{ height: '100%' }}><MapaGeoespacialPage /></div>}
+          {currentPage === 'fotos' && <div className="page-fade" style={{ padding: '20px' }}><FotosPage /></div>}
+          {currentPage === 'eventos' && <div className="page-fade" style={{ padding: '20px' }}><EventosPage /></div>}
+          {currentPage === 'heatmap' && <div className="page-fade" style={{ height: '100%' }}><HeatmapPage /></div>}
+          {currentPage === 'usuarios' && <div className="page-fade" style={{ padding: '20px' }}><UsuariosPage /></div>}
+          {currentPage === 'gestion-usuarios' && <div className="page-fade" style={{ padding: '20px' }}><GestionUsuariosPage /></div>}
+          {currentPage === 'catalogos' && <div className="page-fade" style={{ padding: '20px' }}><CatalogosPage /></div>}
+          {currentPage === 'logs' && <div className="page-fade" style={{ padding: '20px' }}><LogsPage /></div>}
           {currentPage.startsWith('gestor-drones') && (
-            <div className="animate-in" style={{ padding: '20px' }}>
+            <div className="page-fade" style={{ padding: '20px' }}>
               <GestorDronesPage seccion={
                 currentPage === 'gestor-drones-movimientos' ? 'movimientos' :
                 currentPage === 'gestor-drones-inventario' ? 'inventario' :
@@ -422,6 +436,7 @@ export default function App() {
               } />
             </div>
           )}
+          {currentPage === 'mi-perfil' && <div className="page-fade" style={{ padding: '20px' }}><MiPerfilPage /></div>}
         </main>
       </div>
     </div>

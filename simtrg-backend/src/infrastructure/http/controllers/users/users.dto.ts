@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsOptional,
   IsBoolean,
+  IsDateString,
   Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -93,6 +94,66 @@ export class ActualizarUsuarioDto {
   @IsString()
   @MaxLength(50)
   tagRfid?: string;
+
+  @ApiPropertyOptional({ example: 'Capt' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  grado?: string;
+
+  @ApiPropertyOptional({ example: '1990-05-20' })
+  @IsOptional()
+  @IsDateString()
+  fechaNacimiento?: string;
+
+  @ApiPropertyOptional({ example: '1712345678' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  cedula?: string;
+
+  @ApiPropertyOptional({ example: 'Halcón' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  chapa?: string;
+}
+
+export class ActualizarMiPerfilDto {
+  @ApiPropertyOptional({ example: 'Juan' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  nombre?: string;
+
+  @ApiPropertyOptional({ example: 'Pérez' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  apellido?: string;
+
+  @ApiPropertyOptional({ example: 'Capt' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  grado?: string;
+
+  @ApiPropertyOptional({ example: '1990-05-20' })
+  @IsOptional()
+  @IsDateString()
+  fechaNacimiento?: string;
+
+  @ApiPropertyOptional({ example: '1712345678' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  cedula?: string;
+
+  @ApiPropertyOptional({ example: 'Halcón' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  chapa?: string;
 }
 
 export class ActualizarTagUsuarioDto {

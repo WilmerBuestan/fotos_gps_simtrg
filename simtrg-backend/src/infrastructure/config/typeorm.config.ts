@@ -6,6 +6,7 @@ import { AuditoriaLogOrmEntity } from '../database/entities/auditoria-log.orm-en
 import { DronFisicoOrmEntity } from '../database/entities/dron-fisico.orm-entity';
 import { PrestamoDronOrmEntity } from '../database/entities/prestamo-dron.orm-entity';
 import { MovimientoPendienteOrmEntity } from '../database/entities/movimiento-pendiente.orm-entity';
+import { TareaMantenimientoOrmEntity } from '../database/entities/tarea-mantenimiento.orm-entity';
 // NOTA: este array de entities ya estaba incompleto antes de este cambio
 // (solo listaba UsuarioOrmEntity, sin FotoDronOrmEntity/EventoTacticoOrmEntity/etc.).
 // Se agrega AuditoriaLogOrmEntity para que `migration:generate` la detecte,
@@ -29,6 +30,7 @@ export default new DataSource({
     DronFisicoOrmEntity,
     PrestamoDronOrmEntity,
     MovimientoPendienteOrmEntity,
+    TareaMantenimientoOrmEntity,
   ],
   migrations: ['src/infrastructure/database/migrations/*.ts'],
   synchronize: false, // NUNCA true en producción

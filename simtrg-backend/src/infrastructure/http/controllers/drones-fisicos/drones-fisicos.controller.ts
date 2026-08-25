@@ -14,11 +14,14 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 import { RolesGuard } from '../../guards/roles.guard';
 import { DeviceKeyGuard } from '../../guards/device-key.guard';
@@ -27,6 +30,7 @@ import { RolUsuario } from '../../../../core/domain/entities/usuario.entity';
 import { OrigenPrestamoDron } from '../../../../core/domain/entities/prestamo-dron.entity';
 import { UsuarioActual } from '../../decorators/usuario-actual.decorator';
 import { JwtPayload } from '../../../../shared/types/jwt-payload.type';
+import { crearInterceptorFotoPerfil } from '../../utils/foto-perfil.interceptor';
 import { GestionDronesFisicosUseCase } from '../../../../core/use-cases/drones-fisicos/gestion-drones-fisicos.use-case';
 import { RegistrarMovimientoDronUseCase } from '../../../../core/use-cases/drones-fisicos/registrar-movimiento.use-case';
 import { ObtenerPrestamosDronUseCase } from '../../../../core/use-cases/drones-fisicos/obtener-prestamos.use-case';
@@ -34,6 +38,9 @@ import { ObtenerMovimientosPendientesUseCase } from '../../../../core/use-cases/
 import { CompletarMovimientoPendienteUseCase } from '../../../../core/use-cases/drones-fisicos/completar-movimiento-pendiente.use-case';
 import { DescartarMovimientoPendienteUseCase } from '../../../../core/use-cases/drones-fisicos/descartar-movimiento-pendiente.use-case';
 import { ObtenerEstadisticasDronesUseCase } from '../../../../core/use-cases/drones-fisicos/obtener-estadisticas.use-case';
+import { CrearTareaMantenimientoUseCase } from '../../../../core/use-cases/drones-fisicos/crear-tarea-mantenimiento.use-case';
+import { ObtenerTareasMantenimientoUseCase } from '../../../../core/use-cases/drones-fisicos/obtener-tareas-mantenimiento.use-case';
+import { CompletarTareaMantenimientoUseCase } from '../../../../core/use-cases/drones-fisicos/completar-tarea-mantenimiento.use-case';
 import {
   CrearDronFisicoDto,
   ActualizarDronFisicoDto,
@@ -42,6 +49,8 @@ import {
   FiltroPrestamosQueryDto,
   CompletarMovimientoPendienteDto,
   FiltroEstadisticasQueryDto,
+  CrearTareaMantenimientoDto,
+  FiltroTareasMantenimientoQueryDto,
 } from './drones-fisicos.dto';
 
 @ApiTags('Gestor de Drones')
@@ -55,6 +64,9 @@ export class DronesFisicosController {
     private readonly completarPendienteUseCase: CompletarMovimientoPendienteUseCase,
     private readonly descartarPendienteUseCase: DescartarMovimientoPendienteUseCase,
     private readonly obtenerEstadisticasUseCase: ObtenerEstadisticasDronesUseCase,
+    private readonly crearTareaUseCase: CrearTareaMantenimientoUseCase,
+    private readonly obtenerTareasUseCase: ObtenerTareasMantenimientoUseCase,
+    private readonly completarTareaUseCase: CompletarTareaMantenimientoUseCase,
   ) {}
 
   @Post('movimiento-dispositivo')
@@ -168,6 +180,66 @@ export class DronesFisicosController {
       desde: query.desde ? new Date(query.desde) : undefined,
       hasta: query.hasta ? new Date(query.hasta) : undefined,
     });
+  }
+
+  @Post(':id/foto')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(RolUsuario.ADMINISTRADOR, RolUsuario.BODEGUERO)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '[ADMIN/BODEGUERO] Subir foto del dron' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ schema: { type: 'object', properties: { foto: { type: 'string', format: 'binary' } } } })
+  @UseInterceptors(crearInterceptorFotoPerfil('drones'))
+  async subirFoto(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() archivo: Express.Multer.File,
+  ) {
+    if (!archivo) {
+      throw new BadRequestException('No se envió ningún archivo.');
+    }
+    return this.gestionUseCase.actualizar(id, { foto: archivo.path });
+  }
+
+  @Post(':id/tareas-mantenimiento')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(RolUsuario.ADMINISTRADOR, RolUsuario.BODEGUERO)
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: '[ADMIN/BODEGUERO] Crear una tarea de mantenimiento para un dron' })
+  async crearTarea(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: CrearTareaMantenimientoDto,
+    @UsuarioActual() user: JwtPayload,
+  ) {
+    return this.crearTareaUseCase.execute({
+      dronId: id,
+      descripcion: dto.descripcion,
+      prioridad: dto.prioridad,
+      tecnicoAsignado: dto.tecnicoAsignado,
+      creadoPorId: user.sub,
+    });
+  }
+
+  @Get('tareas-mantenimiento')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(RolUsuario.ADMINISTRADOR, RolUsuario.BODEGUERO)
+  @ApiOperation({ summary: '[ADMIN/BODEGUERO] Listar tareas de mantenimiento (por defecto solo pendientes)' })
+  async tareasMantenimiento(@Query() query: FiltroTareasMantenimientoQueryDto) {
+    return this.obtenerTareasUseCase.execute({
+      dronId: query.dronId,
+      soloPendientes: String(query.incluirCompletadas) !== 'true',
+    });
+  }
+
+  @Patch('tareas-mantenimiento/:id/completar')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(RolUsuario.ADMINISTRADOR, RolUsuario.BODEGUERO)
+  @ApiOperation({ summary: '[ADMIN/BODEGUERO] Marcar una tarea de mantenimiento como completada' })
+  async completarTarea(@Param('id', ParseUUIDPipe) id: string) {
+    return this.completarTareaUseCase.execute(id);
   }
 
   @Patch(':id')

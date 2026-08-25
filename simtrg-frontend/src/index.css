@@ -137,6 +137,18 @@ input[type='date']::-webkit-calendar-picker-indicator {
   animation: fadeInUp 0.35s ease both;
 }
 
+/* Fade-only variant (no transform) for containers that may host
+   position:fixed descendants — e.g. the top-level page wrapper in
+   App.tsx, which wraps every page and its modals. A lingering
+   `transform: translateY(0)` from fadeInUp's fill-mode:both turns
+   this wrapper into a CSS containing block for fixed-position
+   children, so their modals stop being positioned relative to the
+   real viewport and end up clipped/misaligned instead of centered
+   on screen. Plain opacity has no such side effect. */
+.page-fade {
+  animation: fadeIn 0.3s ease both;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -164,6 +176,21 @@ input[type='date']::-webkit-calendar-picker-indicator {
 
 .sidebar-backdrop {
   display: none;
+}
+
+/* Swap a table for a stacked-card list on narrow screens instead of
+   forcing horizontal scroll on a many-column table. */
+.mobile-cards {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-table {
+    display: none;
+  }
+  .mobile-cards {
+    display: flex;
+  }
 }
 
 @media (max-width: 768px) {

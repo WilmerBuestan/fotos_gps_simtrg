@@ -34,6 +34,13 @@ export class DronFisicoRepositoryImpl implements IDronFisicoRepository {
       orm.activo,
       orm.createdAt,
       orm.updatedAt,
+      orm.foto,
+      orm.version,
+      orm.anioCompra,
+      Number(orm.horasVuelo),
+      orm.bateriaPorcentaje,
+      orm.bateriaActualizada,
+      orm.ubicacionBodega,
     );
   }
 
@@ -43,8 +50,10 @@ export class DronFisicoRepositoryImpl implements IDronFisicoRepository {
       codigoInterno: data.codigoInterno,
       modelo: data.modelo,
       marca: data.marca ?? null,
+      version: data.version ?? null,
       tagRfid: data.tagRfid ?? null,
       observaciones: data.observaciones ?? null,
+      anioCompra: data.anioCompra ?? null,
     });
     const saved = await this.repo.save(orm);
     return this.toDomain(saved);
@@ -75,10 +84,17 @@ export class DronFisicoRepositoryImpl implements IDronFisicoRepository {
       ...(data.codigoInterno !== undefined && { codigoInterno: data.codigoInterno }),
       ...(data.modelo !== undefined && { modelo: data.modelo }),
       ...(data.marca !== undefined && { marca: data.marca }),
+      ...(data.version !== undefined && { version: data.version }),
       ...(data.tagRfid !== undefined && { tagRfid: data.tagRfid }),
       ...(data.estado !== undefined && { estado: data.estado }),
       ...(data.observaciones !== undefined && { observaciones: data.observaciones }),
       ...(data.activo !== undefined && { activo: data.activo }),
+      ...(data.foto !== undefined && { foto: data.foto }),
+      ...(data.anioCompra !== undefined && { anioCompra: data.anioCompra }),
+      ...(data.horasVuelo !== undefined && { horasVuelo: data.horasVuelo }),
+      ...(data.bateriaPorcentaje !== undefined && { bateriaPorcentaje: data.bateriaPorcentaje }),
+      ...(data.bateriaActualizada !== undefined && { bateriaActualizada: data.bateriaActualizada }),
+      ...(data.ubicacionBodega !== undefined && { ubicacionBodega: data.ubicacionBodega }),
     });
     const updated = await this.repo.findOne({ where: { id } });
     return this.toDomain(updated!);

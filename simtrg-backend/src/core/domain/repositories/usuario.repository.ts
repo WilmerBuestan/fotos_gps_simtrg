@@ -30,6 +30,11 @@ export interface UpdateUsuarioDto {
   ultimaUbicacionParroquia?: string;
   ultimaUbicacionFecha?: Date;
   tagRfid?: string | null;
+  foto?: string | null;
+  grado?: string | null;
+  fechaNacimiento?: Date | null;
+  cedula?: string | null;
+  chapa?: string | null;
 }
 
 export abstract class IUsuarioRepository {

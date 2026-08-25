@@ -1,1 +1,4 @@
-hazta el momento todo bien
+ya creamos el md de guia de despliegue de servidor, pero antes de todo nevesito que hagamos unas cosas, veo que empezamos como que a complicarnos en el despliegue porque la aplicaciones tenemos el docker solo el back y la bd pero el front no, asi que me tocaria complicarme, lo que estaba pensando es que me presentes opciones para cumplir mi cometido de simplificar lo que vamods a ponerle en ubuntu server, tambien el front debe ser en docker porque segun se es mejor poner sin interfaz grafica y asi correrle, tu sabes que si que ya esta subido a mi git hub y todo
+quiero que actualices la guia pero ahora si bien hecha y detallado todo lo que debo hacer y como te digo el front no se que tan recomendable seria hacerle que tambien este en docker y tambien los comandos y todo paso a paso lo que debo hacer
+tambien pues el desplieuge y pruebas todo lo que debo ahcer para que quede funcionando, porque pues no se nada ni nunca he hecho nada similar asi que detalla todo o presentame opciones
+si no estas seguro o se te ocurren cosas preguntame para decidir y hacelo lo mejor para despleguar esto con lo menor posible de errore y que funcione

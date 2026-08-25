@@ -24,6 +24,11 @@ export interface UsuarioResponseDto {
   ultimaUbicacionParroquia: string | undefined;
   ultimaUbicacionFecha: Date | undefined;
   tagRfid: string | undefined;
+  foto: string | undefined;
+  grado: string | undefined;
+  fechaNacimiento: Date | undefined;
+  cedula: string | undefined;
+  chapa: string | undefined;
 }
 
 @Injectable()
@@ -64,6 +69,11 @@ export class ObtenerUsuariosUseCase {
       ultimaUbicacionParroquia: usuario.ultimaUbicacionParroquia,
       ultimaUbicacionFecha: usuario.ultimaUbicacionFecha,
       tagRfid: usuario.tagRfid,
+      foto: usuario.foto,
+      grado: usuario.grado,
+      fechaNacimiento: usuario.fechaNacimiento,
+      cedula: usuario.cedula,
+      chapa: usuario.chapa,
     };
   }
 }

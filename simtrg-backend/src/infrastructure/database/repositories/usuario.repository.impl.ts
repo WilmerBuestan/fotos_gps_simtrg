@@ -48,6 +48,11 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
       orm.ultimaUbicacionParroquia ?? undefined,
       orm.ultimaUbicacionFecha ?? undefined,
       orm.tagRfid ?? undefined,
+      orm.foto ?? undefined,
+      orm.grado ?? undefined,
+      orm.fechaNacimiento ?? undefined,
+      orm.cedula ?? undefined,
+      orm.chapa ?? undefined,
     );
   }
 
@@ -115,6 +120,11 @@ export class UsuarioRepositoryImpl implements IUsuarioRepository {
       }),
       ...(data.ultimaUbicacionFecha && { ultimaUbicacionFecha: data.ultimaUbicacionFecha }),
       ...(data.tagRfid !== undefined && { tagRfid: data.tagRfid }),
+      ...(data.foto !== undefined && { foto: data.foto }),
+      ...(data.grado !== undefined && { grado: data.grado }),
+      ...(data.fechaNacimiento !== undefined && { fechaNacimiento: data.fechaNacimiento }),
+      ...(data.cedula !== undefined && { cedula: data.cedula }),
+      ...(data.chapa !== undefined && { chapa: data.chapa }),
     });
     const updated = await this.repo.findOne({ where: { id } });
     return this.toDomain(updated!);

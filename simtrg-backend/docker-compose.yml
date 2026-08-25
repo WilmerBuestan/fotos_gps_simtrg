@@ -1,6 +1,7 @@
 # ============================================================
 # DOCKER COMPOSE - SIMTRG Stack Completo
-# Servicios: backend (NestJS) + postgres (PostgreSQL + PostGIS)
+# Servicios: frontend (React+nginx) + backend (NestJS) + postgres
+# (PostgreSQL + PostGIS)
 # Despliegue en Intranet / servidor físico de la unidad
 # ============================================================
 
@@ -59,6 +60,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  # ---- Frontend: React servido por nginx (build de producción) ----
+  frontend:
+    build:
+      context: ../simtrg-frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: simtrg_frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - simtrg_network
 
 # ---- Volumes persistentes ----
 volumes:

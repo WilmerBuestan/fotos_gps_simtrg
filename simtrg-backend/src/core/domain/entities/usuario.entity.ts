@@ -31,6 +31,11 @@ export class UsuarioDomain {
     public ultimaUbicacionParroquia?: string,
     public ultimaUbicacionFecha?: Date,
     public tagRfid?: string,
+    public foto?: string,
+    public grado?: string,
+    public fechaNacimiento?: Date,
+    public cedula?: string,
+    public chapa?: string,
   ) {}
 
   // ---- Reglas de Negocio ----

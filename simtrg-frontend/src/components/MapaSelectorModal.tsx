@@ -79,7 +79,7 @@ export default function MapaSelectorModal({ latInicial, lonInicial, colors, onCo
       onClick={onCerrar}
     >
       <div
-        style={{ backgroundColor: colors.bgCard, borderRadius: '10px', width: '100%', maxWidth: '700px', overflow: 'hidden', border: `1px solid ${colors.border}`, boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
+        style={{ backgroundColor: colors.bgCard, borderRadius: '10px', width: '100%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', border: `1px solid ${colors.border}`, boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ padding: '15px 20px', borderBottom: `1px solid ${colors.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

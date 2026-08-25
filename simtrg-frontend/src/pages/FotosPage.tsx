@@ -8,13 +8,13 @@ export default function FotosPage() {
   const { colors } = useTheme()
   const [fotos, setFotos] = useState<any[]>([])
   const [filtros, setFiltros] = useState({ fechas: [], operadores: [], provincias: [] })
-  const [operadoresMap, setOperadoresMap] = useState({})
+  const [operadoresMap, setOperadoresMap] = useState<Record<string, string>>({})
   const [selectedFechaInicio, setSelectedFechaInicio] = useState('')
   const [selectedFechaFin, setSelectedFechaFin] = useState('')
   const [selectedOperador, setSelectedOperador] = useState('')
   const [selectedProvincia, setSelectedProvincia] = useState('')
   const [selectedCanton, setSelectedCanton] = useState('')
-  const [selectedFiles, setSelectedFiles] = useState([])
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [selectedFoto, setSelectedFoto] = useState<any>(null)
@@ -89,8 +89,8 @@ useEffect(() => {
   const cargarOperadores = async () => {
     try {
       const res = await API.get('/usuarios')
-      const map = {}
-      res.data.forEach(u => {
+      const map: Record<string, string> = {}
+      res.data.forEach((u: any) => {
         map[u.id] = u.nombreCompleto || u.username
       })
       setOperadoresMap(map)
@@ -99,16 +99,16 @@ useEffect(() => {
     }
   }
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: any) => {
     setSelectedFiles(Array.from(e.target.files || []))
   }
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: any) => {
     e.preventDefault()
-    const files = Array.from(e.dataTransfer.files).filter(f =>
+    const files: File[] = Array.from(e.dataTransfer.files as FileList).filter((f: File) =>
       ['image/jpeg', 'image/jpg', 'image/png'].includes(f.type)
     )
-    setSelectedFiles(prev => [...prev, ...files])
+    setSelectedFiles((prev) => [...prev, ...files])
   }
 
   const handleUpload = async () => {
@@ -178,7 +178,7 @@ useEffect(() => {
     }
   }
 
-  const handleDelete = async (fotoId) => {
+  const handleDelete = async (fotoId: string) => {
     if (!window.confirm('¿Eliminar esta foto?')) return
     try {
       await API.delete(`/drones/${fotoId}`)

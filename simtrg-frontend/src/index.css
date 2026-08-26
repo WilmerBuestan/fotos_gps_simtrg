@@ -167,11 +167,12 @@ input[type='date']::-webkit-calendar-picker-indicator {
   width: 0;
   overflow: hidden;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
   transition: width 0.25s ease, transform 0.3s ease;
 }
 .sidebar.sidebar-open {
   width: 280px;
-  overflow-y: auto;
 }
 
 .sidebar-backdrop {
@@ -202,7 +203,6 @@ input[type='date']::-webkit-calendar-picker-indicator {
     width: 280px;
     transform: translateX(-100%);
     z-index: 1000;
-    overflow-y: auto;
     box-shadow: var(--shadow-md);
   }
   .sidebar.sidebar-open {

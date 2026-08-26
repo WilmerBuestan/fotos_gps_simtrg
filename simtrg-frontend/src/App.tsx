@@ -116,6 +116,9 @@ export default function App() {
           padding: sidebarOpen ? '15px' : '0',
         }}
       >
+        {/* Área con scroll propio: el bloque de abajo (oscuro/cerrar/firma) queda
+            fuera de esto para que nunca tape los últimos ítems del menú. */}
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <div style={{
           marginBottom: '20px',
           paddingBottom: '15px',
@@ -244,58 +247,67 @@ export default function App() {
             </ul>
           </>
         )}
+        </div>
 
-        <div style={{ position: 'absolute', bottom: '15px', left: '15px', right: '15px' }}>
-          <button
-            onClick={toggleDarkMode}
-            className="btn"
-            style={{
-              width: '100%',
-              padding: '8px',
-              marginBottom: '8px',
-              backgroundColor: colors.bgTertiary,
-              border: `1px solid ${colors.border}`,
-              color: colors.text,
-              fontSize: '13px',
-            }}
-          >
-            {isDarkMode ? '☀️ Claro' : '🌙 Oscuro'}
-          </button>
+        <div style={{ flexShrink: 0, paddingTop: '12px', marginTop: '8px', borderTop: `1px solid ${colors.border}` }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+            <button
+              onClick={toggleDarkMode}
+              className="btn"
+              title={isDarkMode ? 'Modo claro' : 'Modo oscuro'}
+              style={{
+                flex: 1,
+                padding: '10px',
+                backgroundColor: colors.bgTertiary,
+                border: `1px solid ${colors.border}`,
+                color: colors.text,
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {isDarkMode ? '☀️' : '🌙'}
+            </button>
 
-          <button
-            onClick={async () => {
-              // El registro de logout necesita el token vigente, así que se
-              // llama ANTES de limpiar localStorage. Nunca debe bloquear el
-              // cierre de sesión: errores de red o de geolocalización se ignoran.
-              try {
-                const { latitud, longitud } = await obtenerGeolocalizacion()
-                await API.post('/auth/logout', { latitud, longitud })
-              } catch {
-                // Cerrar sesión igual aunque falle el registro del evento.
-              }
-              localStorage.removeItem('token')
-              localStorage.removeItem('usuario')
-              setUsuario(null)
-            }}
-            className="btn"
-            style={{
-              width: '100%',
-              padding: '8px',
-              backgroundColor: colors.danger,
-              color: 'white',
-              fontSize: '13px',
-              fontWeight: 'bold',
-            }}
-          >
-            🚪 Cerrar
-          </button>
+            <button
+              onClick={async () => {
+                // El registro de logout necesita el token vigente, así que se
+                // llama ANTES de limpiar localStorage. Nunca debe bloquear el
+                // cierre de sesión: errores de red o de geolocalización se ignoran.
+                try {
+                  const { latitud, longitud } = await obtenerGeolocalizacion()
+                  await API.post('/auth/logout', { latitud, longitud })
+                } catch {
+                  // Cerrar sesión igual aunque falle el registro del evento.
+                }
+                localStorage.removeItem('token')
+                localStorage.removeItem('usuario')
+                setUsuario(null)
+              }}
+              className="btn"
+              title="Cerrar sesión"
+              style={{
+                flex: 1,
+                padding: '10px',
+                backgroundColor: colors.danger,
+                color: 'white',
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              🚪
+            </button>
+          </div>
 
-          <div style={{ textAlign: 'center', marginTop: '12px', paddingTop: '10px', borderTop: `1px solid ${colors.border}` }}>
+          <div style={{ textAlign: 'center', paddingTop: '10px', borderTop: `1px solid ${colors.border}` }}>
             <p style={{ margin: '0 0 2px 0', fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
-              Desarrollado por: <strong style={{ color: colors.textSecondary }}>Mashi - Wilo</strong>
+              💻 Development by: <strong style={{ color: colors.textSecondary }}>Mashi - Wilo</strong>
             </p>
             <p style={{ margin: 0, fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
-              Powered by: <strong style={{ color: colors.textSecondary }}>Sanchez</strong>
+              ⚡ Powered by: <strong style={{ color: colors.textSecondary }}>Sanchez</strong>
             </p>
           </div>
         </div>

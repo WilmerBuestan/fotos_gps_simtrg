@@ -307,8 +307,11 @@ export default function App() {
             <p style={{ margin: '0 0 2px 0', fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
               💻 Development by: <strong style={{ color: colors.textSecondary }}>Mashi - Wilo</strong>
             </p>
-            <p style={{ margin: 0, fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
+            <p style={{ margin: '0 0 2px 0', fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
               ⚡ Powered by: <strong style={{ color: colors.textSecondary }}>Sanchez</strong>
+            </p>
+            <p style={{ margin: 0, fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
+              🎖️ Corporate Mentor: <strong style={{ color: colors.textSecondary }}>Capt Muñoz Hugo Fabian</strong>
             </p>
           </div>
         </div>

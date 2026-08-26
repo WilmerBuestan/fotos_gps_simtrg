@@ -46,6 +46,7 @@ export class EventoTacticoRepositoryImpl implements IEventoTacticoRepository {
       orm.provincia,
       orm.canton,
       orm.parroquia,
+      orm.tipoActividad ? { id: orm.tipoActividad.id, nombre: orm.tipoActividad.nombre } : undefined,
     );
   }
 

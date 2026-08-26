@@ -24,6 +24,10 @@ export class EventoTacticoDomain {
     public provincia?: string | null,
     public canton?: string | null,
     public parroquia?: string | null,
+    // El frontend espera este objeto anidado (evento.tipoActividad.nombre),
+    // no solo el string plano de arriba — sin esto, los gráficos y popups
+    // que leen tipoActividad?.nombre caen todos al valor por defecto.
+    public tipoActividad?: { id: string; nombre: string },
   ) {}
 
   // ---- Reglas de negocio ----

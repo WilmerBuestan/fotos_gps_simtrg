@@ -26,6 +26,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [showProfile, setShowProfile] = useState(false)
+  const [showCreditos, setShowCreditos] = useState(false)
   const { isDarkMode, toggleDarkMode, colors } = useTheme()
 
   const iniciarSesion = (u: any) => {
@@ -303,15 +304,20 @@ export default function App() {
             </button>
           </div>
 
-          <div style={{ textAlign: 'center', paddingTop: '10px', borderTop: `1px solid ${colors.border}` }}>
+          <div
+            onClick={() => setShowCreditos(true)}
+            className="row-hover"
+            title="Ver detalles del proyecto"
+            style={{ textAlign: 'center', paddingTop: '10px', borderTop: `1px solid ${colors.border}`, cursor: 'pointer', borderRadius: '6px' }}
+          >
             <p style={{ margin: '0 0 2px 0', fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
-              💻 Development by: <strong style={{ color: colors.textSecondary }}>Mashi - Wilo</strong>
+              💻 Development by: <strong style={{ color: colors.textSecondary }}>Capt Buestán Wilmer & Capt Masapanta Jefferson</strong>
             </p>
             <p style={{ margin: '0 0 2px 0', fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
-              ⚡ Powered by: <strong style={{ color: colors.textSecondary }}>Sanchez</strong>
+              ⚡ Powered by: <strong style={{ color: colors.textSecondary }}>Capt Sánchez José</strong>
             </p>
             <p style={{ margin: 0, fontSize: '10px', letterSpacing: '0.3px', color: colors.textTertiary }}>
-              🎖️ Corporate Mentor: <strong style={{ color: colors.textSecondary }}>Capt Muñoz Hugo Fabian</strong>
+              🎖️ Corporate Mentor: <strong style={{ color: colors.textSecondary }}>Capt Muñoz Hugo Fabián</strong>
             </p>
           </div>
         </div>
@@ -360,7 +366,7 @@ export default function App() {
 
             <div style={{ minWidth: 0, overflow: 'hidden' }}>
               <h1 style={{ margin: '0', fontSize: '16px', fontWeight: 'bold', color: colors.primary }}>SIMTRG</h1>
-              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: colors.textTertiary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>29 BIM - GMREC</p>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: colors.textTertiary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>29 BIM - GMREE</p>
             </div>
           </div>
 
@@ -455,6 +461,43 @@ export default function App() {
           {currentPage === 'mi-perfil' && <div className="page-fade" style={{ padding: '20px' }}><MiPerfilPage /></div>}
         </main>
       </div>
+
+      {showCreditos && (
+        <div
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, padding: '20px' }}
+          onClick={() => setShowCreditos(false)}
+        >
+          <div
+            className="card animate-in"
+            style={{ backgroundColor: colors.bgCard, maxWidth: '460px', width: '100%', padding: '24px', maxHeight: '90vh', overflowY: 'auto', border: `1px solid ${colors.border}` }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ color: colors.text, margin: 0, fontSize: '16px' }}>ℹ️ Acerca de SIMTRG</h3>
+              <button onClick={() => setShowCreditos(false)} style={{ background: 'transparent', border: 'none', color: colors.text, fontSize: '20px', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <p style={{ color: colors.textSecondary, fontSize: '13px', lineHeight: 1.6, margin: '0 0 16px 0' }}>
+              Este sistema fue desarrollado en el marco de las <strong style={{ color: colors.text }}>prácticas preprofesionales de agosto de 2026</strong>. Agradecemos a <strong style={{ color: colors.text }}>GMREE</strong> (Grupo de Monitoreo y Reconocimiento Electrónico del Ejército) por la oportunidad y el acompañamiento durante su desarrollo.
+            </p>
+
+            <div style={{ marginBottom: '16px' }}>
+              <p style={{ color: colors.textTertiary, fontSize: '11px', fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: '0.5px' }}>EQUIPO</p>
+              <p style={{ color: colors.textSecondary, fontSize: '12px', margin: '0 0 4px 0' }}>💻 Development by: <strong style={{ color: colors.text }}>Capt Buestán Wilmer & Capt Masapanta Jefferson</strong></p>
+              <p style={{ color: colors.textSecondary, fontSize: '12px', margin: '0 0 4px 0' }}>⚡ Powered by: <strong style={{ color: colors.text }}>Capt Sánchez José</strong></p>
+              <p style={{ color: colors.textSecondary, fontSize: '12px', margin: 0 }}>🎖️ Corporate Mentor: <strong style={{ color: colors.text }}>Capt Muñoz Hugo Fabián</strong></p>
+            </div>
+
+            <div>
+              <p style={{ color: colors.textTertiary, fontSize: '11px', fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: '0.5px' }}>TECNOLOGÍA</p>
+              <p style={{ color: colors.textSecondary, fontSize: '12px', margin: '0 0 4px 0' }}>🖥️ Frontend: React + TypeScript, Leaflet (mapas), Recharts (gráficos)</p>
+              <p style={{ color: colors.textSecondary, fontSize: '12px', margin: '0 0 4px 0' }}>⚙️ Backend: NestJS (Node.js + TypeScript), arquitectura hexagonal</p>
+              <p style={{ color: colors.textSecondary, fontSize: '12px', margin: '0 0 4px 0' }}>🗄️ Base de datos: PostgreSQL + PostGIS (datos geoespaciales)</p>
+              <p style={{ color: colors.textSecondary, fontSize: '12px', margin: 0 }}>🐳 Despliegue: Docker (frontend, backend y base de datos en contenedores)</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

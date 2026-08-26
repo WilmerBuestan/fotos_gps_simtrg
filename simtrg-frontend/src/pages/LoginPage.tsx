@@ -40,7 +40,7 @@ export default function LoginPage({ onLogin }: { onLogin: (usuario: any) => void
           <div className="panel-header">
             <img src="/login/emblema.png" alt="Emblema Unidad" className="logo" />
             <h1>SIMTRG</h1>
-            <p>Sistema de Monitoreo Táctico · 29 BIM - GMREC</p>
+            <p>Sistema de Monitoreo Táctico · 29 BIM - GMREE</p>
           </div>
 
           {error && <div className="login-error">⚠️ {error}</div>}

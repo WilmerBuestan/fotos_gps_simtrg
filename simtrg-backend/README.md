@@ -1,6 +1,6 @@
 # SIMTRG - Backend API
 **Sistema Integrado de Monitoreo Táctico y Reconocimiento Geoespacial**  
-*29 BIM - Grupo de Monitoreo y Reconocimiento Electrónico Conjunto (GMREC)*
+*29 BIM - Grupo de Monitoreo y Reconocimiento Electrónico Conjunto (GMREE)*
 
 ---
 

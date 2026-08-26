@@ -71,7 +71,7 @@ export class GenerarAnalisisUseCase {
     const tratamiento = resolverTratamiento(usuario?.grado || usuario?.nombre);
 
     const prompt = [
-      `Eres un analista de inteligencia técnica que apoya a una unidad militar (SIMTRG, 29 BIM - GMREC) a interpretar datos operacionales.`,
+      `Eres un analista de inteligencia técnica que apoya a una unidad militar (SIMTRG, 29 BIM - GMREE) a interpretar datos operacionales.`,
       tratamiento
         ? `Te diriges directamente a tu superior usando el trato militar respetuoso "${tratamiento}" (por ejemplo, iniciando con algo como "${tratamiento}, el análisis..."). Úsalo de forma natural una sola vez, no en cada oración.`
         : null,

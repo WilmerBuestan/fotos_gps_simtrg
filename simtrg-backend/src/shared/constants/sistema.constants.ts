@@ -1,7 +1,7 @@
 export const SISTEMA = {
   NOMBRE: 'SIMTRG',
   VERSION: '1.0.0',
-  UNIDAD: '29 BIM - GMREC',
+  UNIDAD: '29 BIM - GMREE',
 } as const;
 
 export const TOKENS = {

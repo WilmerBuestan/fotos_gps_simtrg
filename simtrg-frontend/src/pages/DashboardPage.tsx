@@ -227,7 +227,7 @@ export default function DashboardPage() {
       const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}')
       await exportarDashboardPdf(contenedorRef.current, secciones, {
         titulo: 'Reporte de Dashboard',
-        unidad: '29 BIM - GMREC',
+        unidad: '29 BIM - GMREE',
         subtitulo: rango,
         generadoPor: usuarioActual.nombreCompleto || usuarioActual.username,
         nombreArchivo: `simtrg-dashboard-${new Date().toISOString().slice(0, 10)}.pdf`,

@@ -1,6 +1,6 @@
 # SIMTRG — Documentación Técnica y Hoja de Ruta
 
-**29 BIM · GMREC** · Última actualización: 2026-08-17
+**29 BIM · GMREE** · Última actualización: 2026-08-17
 
 Este documento explica, en lenguaje lo más claro posible, **qué tecnologías usa SIMTRG y por qué**, **qué opciones existen para alojarlo de forma permanente** (con precios de referencia), y **cómo se vería un futuro sistema de inteligencia artificial** que identifique novedades automáticamente en las fotos, dividido en etapas realistas.
 

@@ -1,6 +1,6 @@
 # SIMTRG — Sistema de Monitoreo Táctico
 
-**29 BIM · GMREC (Grupo de Monitoreo y Reconocimiento Electrónico Conjunto)**
+**29 BIM · GMREE (Grupo de Monitoreo y Reconocimiento Electrónico Conjunto)**
 
 Esta guía explica, paso a paso, cómo instalar y ejecutar SIMTRG en una computadora de la unidad. Está pensada para que **cualquier persona pueda seguirla**, incluso sin experiencia previa en programación.
 

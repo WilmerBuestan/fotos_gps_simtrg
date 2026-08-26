@@ -567,7 +567,7 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
       const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}')
       await exportarDashboardPdf(contenedorRef.current, seccionesValidas, {
         titulo: 'Reporte Gestor de Drones',
-        unidad: '29 BIM - GMREC',
+        unidad: '29 BIM - GMREE',
         subtitulo: rango,
         generadoPor: usuarioActual.nombreCompleto || usuarioActual.username,
         nombreArchivo: `simtrg-gestor-drones-${new Date().toISOString().slice(0, 10)}.pdf`,

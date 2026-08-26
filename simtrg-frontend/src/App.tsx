@@ -272,6 +272,7 @@ export default function App() {
 
             <button
               onClick={async () => {
+                if (!window.confirm('¿Seguro que quieres cerrar sesión?')) return
                 // El registro de logout necesita el token vigente, así que se
                 // llama ANTES de limpiar localStorage. Nunca debe bloquear el
                 // cierre de sesión: errores de red o de geolocalización se ignoran.

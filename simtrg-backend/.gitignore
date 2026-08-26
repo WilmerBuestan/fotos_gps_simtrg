@@ -31,6 +31,7 @@ Thumbs.db
 coverage/
 *.lcov
 
-# Logs
-logs/
+# Logs (solo la carpeta de logs de runtime en la raíz, no src/**/logs
+# — ahí vive el módulo de Logs de Auditoría, que sí es código fuente)
+/logs/
 *.log

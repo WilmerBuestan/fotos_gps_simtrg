@@ -12,6 +12,7 @@ import {
   CreateMovimientoPendienteDto,
 } from '../../../core/domain/repositories/movimiento-pendiente.repository';
 import { MovimientoPendienteDomain } from '../../../core/domain/entities/movimiento-pendiente.entity';
+import { formatearNombreCompleto } from '../../../core/domain/entities/usuario.entity';
 import { MovimientoPendienteOrmEntity } from '../entities/movimiento-pendiente.orm-entity';
 
 @Injectable()
@@ -34,7 +35,7 @@ export class MovimientoPendienteRepositoryImpl implements IMovimientoPendienteRe
       orm.fechaResolucion,
       orm.createdAt,
       orm.dron?.codigoInterno,
-      orm.usuario ? `${orm.usuario.nombre} ${orm.usuario.apellido}` : undefined,
+      orm.usuario ? formatearNombreCompleto(orm.usuario.grado, orm.usuario.apellido, orm.usuario.nombre) : undefined,
     );
   }
 

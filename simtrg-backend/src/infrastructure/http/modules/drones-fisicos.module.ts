@@ -28,6 +28,7 @@ import { ObtenerEstadisticasDronesUseCase } from '../../../core/use-cases/drones
 import { CrearTareaMantenimientoUseCase } from '../../../core/use-cases/drones-fisicos/crear-tarea-mantenimiento.use-case';
 import { ObtenerTareasMantenimientoUseCase } from '../../../core/use-cases/drones-fisicos/obtener-tareas-mantenimiento.use-case';
 import { CompletarTareaMantenimientoUseCase } from '../../../core/use-cases/drones-fisicos/completar-tarea-mantenimiento.use-case';
+import { EliminarPrestamoDronUseCase } from '../../../core/use-cases/drones-fisicos/eliminar-prestamo.use-case';
 
 import { DronesFisicosController } from '../controllers/drones-fisicos/drones-fisicos.controller';
 import { DeviceKeyGuard } from '../guards/device-key.guard';
@@ -59,6 +60,7 @@ import { DeviceKeyGuard } from '../guards/device-key.guard';
     CrearTareaMantenimientoUseCase,
     ObtenerTareasMantenimientoUseCase,
     CompletarTareaMantenimientoUseCase,
+    EliminarPrestamoDronUseCase,
     DeviceKeyGuard,
   ],
 })

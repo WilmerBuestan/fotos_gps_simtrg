@@ -15,6 +15,7 @@ import {
   PuntoHeatmap,
 } from '../../../core/domain/repositories/eventos.repository';
 import { EventoTacticoDomain } from '../../../core/domain/entities/evento-tactico.entity';
+import { formatearNombreCompleto } from '../../../core/domain/entities/usuario.entity';
 import { EventoTacticoOrmEntity } from '../entities/evento-tactico.orm-entity';
 
 // Tamaño de celda del grid para heatmap (en grados decimales)
@@ -41,7 +42,7 @@ export class EventoTacticoRepositoryImpl implements IEventoTacticoRepository {
       orm.createdAt,
       orm.updatedAt,
       orm.tipoActividad?.nombre,
-      orm.operador ? `${orm.operador.nombre} ${orm.operador.apellido}` : undefined,
+      orm.operador ? formatearNombreCompleto(orm.operador.grado, orm.operador.apellido, orm.operador.nombre) : undefined,
       undefined,
       orm.provincia,
       orm.canton,

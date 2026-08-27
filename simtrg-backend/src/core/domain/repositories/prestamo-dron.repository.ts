@@ -22,6 +22,7 @@ export interface FiltroPrestamosDto {
 
 export abstract class IPrestamoDronRepository {
   abstract create(data: CreatePrestamoDronDto): Promise<PrestamoDronDomain>;
+  abstract findById(id: string): Promise<PrestamoDronDomain | null>;
   abstract findPrestamoEnCurso(dronId: string): Promise<PrestamoDronDomain | null>;
   abstract registrarEntrada(
     id: string,
@@ -29,4 +30,5 @@ export abstract class IPrestamoDronRepository {
     observaciones?: string | null,
   ): Promise<PrestamoDronDomain>;
   abstract findAll(filtro?: FiltroPrestamosDto): Promise<PrestamoDronDomain[]>;
+  abstract delete(id: string): Promise<void>;
 }

@@ -12,6 +12,19 @@ export enum RolUsuario {
   BODEGUERO = 'BODEGUERO',
 }
 
+// Formato militar estándar para mostrar personas en todo el sistema:
+// "Grado Apellido Nombre" (el grado se omite si no está registrado).
+// Se reutiliza en cada lugar que arma un nombre a partir de datos
+// crudos de usuario (no solo aquí en el getter), para que todos
+// queden consistentes.
+export function formatearNombreCompleto(
+  grado: string | null | undefined,
+  apellido: string,
+  nombre: string,
+): string {
+  return `${grado ? grado + ' ' : ''}${apellido} ${nombre}`;
+}
+
 export class UsuarioDomain {
   constructor(
     public readonly id: string,
@@ -41,7 +54,7 @@ export class UsuarioDomain {
   // ---- Reglas de Negocio ----
 
   get nombreCompleto(): string {
-    return `${this.nombre} ${this.apellido}`;
+    return formatearNombreCompleto(this.grado, this.apellido, this.nombre);
   }
 
   puedeAccederAlDashboardEstrategico(): boolean {

@@ -99,4 +99,8 @@ export class DronFisicoRepositoryImpl implements IDronFisicoRepository {
     const updated = await this.repo.findOne({ where: { id } });
     return this.toDomain(updated!);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.repo.delete(id);
+  }
 }

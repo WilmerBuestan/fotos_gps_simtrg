@@ -11,6 +11,8 @@ import {
   UpdateDronFisicoDto,
 } from '../../domain/repositories/dron-fisico.repository';
 
+const CODIGO_POSTGRES_FK_VIOLATION = '23503';
+
 @Injectable()
 export class GestionDronesFisicosUseCase {
   constructor(
@@ -57,5 +59,23 @@ export class GestionDronesFisicosUseCase {
       }
     }
     return this.dronRepo.update(id, data);
+  }
+
+  async eliminar(id: string): Promise<void> {
+    const dron = await this.dronRepo.findById(id);
+    if (!dron) {
+      throw new NotFoundException('Dron no encontrado.');
+    }
+    try {
+      await this.dronRepo.delete(id);
+    } catch (error: any) {
+      const codigo = error?.code ?? error?.driverError?.code;
+      if (codigo === CODIGO_POSTGRES_FK_VIOLATION) {
+        throw new ConflictException(
+          `No se puede eliminar ${dron.codigoInterno}: tiene préstamos o tareas de mantenimiento asociadas. Márcalo como "Baja" en su lugar para conservar el historial.`,
+        );
+      }
+      throw error;
+    }
   }
 }

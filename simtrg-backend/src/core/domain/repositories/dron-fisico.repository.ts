@@ -39,4 +39,5 @@ export abstract class IDronFisicoRepository {
   abstract findByTagRfid(tagRfid: string): Promise<DronFisicoDomain | null>;
   abstract findByCodigoInterno(codigoInterno: string): Promise<DronFisicoDomain | null>;
   abstract update(id: string, data: UpdateDronFisicoDto): Promise<DronFisicoDomain>;
+  abstract delete(id: string): Promise<void>;
 }

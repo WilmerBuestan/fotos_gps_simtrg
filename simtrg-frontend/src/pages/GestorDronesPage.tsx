@@ -64,6 +64,8 @@ type Seccion = 'movimientos' | 'inventario' | 'usuarios' | 'dashboard'
 
 export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
   const { colors, isDarkMode } = useTheme()
+  const usuarioActual = JSON.parse(localStorage.getItem('usuario') || '{}')
+  const esAdmin = usuarioActual.rol === 'ADMINISTRADOR'
 
   const [drones, setDrones] = useState<any[]>([])
   const [usuarios, setUsuarios] = useState<any[]>([])
@@ -305,6 +307,26 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
       cargarTodo()
     } catch (err: any) {
       alert(err.response?.data?.message || 'No se pudo completar la tarea')
+    }
+  }
+
+  const eliminarPrestamo = async (id: string) => {
+    if (!window.confirm('¿Eliminar este registro del historial de préstamos? Esta acción no se puede deshacer.')) return
+    try {
+      await API.delete(`/drones-fisicos/prestamos/${id}`)
+      cargarTodo()
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'No se pudo eliminar el registro')
+    }
+  }
+
+  const eliminarDron = async (dron: any) => {
+    if (!window.confirm(`¿Eliminar el dron ${dron.codigoInterno} del inventario? Esta acción no se puede deshacer.`)) return
+    try {
+      await API.delete(`/drones-fisicos/${dron.id}`)
+      cargarTodo()
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'No se pudo eliminar el dron')
     }
   }
 
@@ -774,8 +796,18 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
                             <td style={{ padding: '10px' }}>
                               <span style={{ padding: '3px 8px', borderRadius: '999px', color: 'white', fontSize: '10px', backgroundColor: p.origen === 'ESP32' ? '#3fb950' : '#8b949e' }}>{p.origen}</span>
                             </td>
-                            <td style={{ padding: '10px', textAlign: 'right' }}>
+                            <td style={{ padding: '10px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                               <span style={{ color: colors.primary, fontSize: '11px', fontWeight: 'bold' }}>Ver Detalle</span>
+                              {esAdmin && (
+                                <button
+                                  onClick={(ev) => { ev.stopPropagation(); eliminarPrestamo(p.id) }}
+                                  className="btn"
+                                  title="Eliminar registro"
+                                  style={{ marginLeft: '10px', padding: '3px 8px', backgroundColor: 'transparent', color: '#f85149', border: '1px solid #f85149', borderRadius: '5px', fontSize: '11px', cursor: 'pointer' }}
+                                >
+                                  🗑️
+                                </button>
+                              )}
                             </td>
                           </tr>
                         )
@@ -810,7 +842,18 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
                         {p.fechaEntrada && (
                           <p style={{ margin: '0 0 2px 0', color: colors.textSecondary, fontSize: '12px' }}>↘️ Entregó: <b>{p.usuarioEntradaNombre || '—'}</b> · {new Date(p.fechaEntrada).toLocaleString('es-EC')}</p>
                         )}
-                        <p style={{ margin: 0, color: colors.textTertiary, fontSize: '11px' }}>Duración: {duracion(p)}</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <p style={{ margin: 0, color: colors.textTertiary, fontSize: '11px' }}>Duración: {duracion(p)}</p>
+                          {esAdmin && (
+                            <button
+                              onClick={(ev) => { ev.stopPropagation(); eliminarPrestamo(p.id) }}
+                              className="btn"
+                              style={{ padding: '4px 10px', backgroundColor: 'transparent', color: '#f85149', border: '1px solid #f85149', borderRadius: '5px', fontSize: '11px', cursor: 'pointer' }}
+                            >
+                              🗑️ Eliminar
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )
                   })}
@@ -968,8 +1011,11 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
                             <button onClick={() => abrirEditar(dron)} className="btn" style={{ padding: '6px 10px', marginRight: '6px', backgroundColor: 'transparent', color: colors.primary, border: `1px solid ${colors.primary}`, borderRadius: '5px', fontSize: '12px', cursor: 'pointer' }}>
                               Ver perfil
                             </button>
-                            <button onClick={() => abrirNuevaTarea(dron.id, 'ALTA')} className="btn" style={{ padding: '6px 10px', backgroundColor: 'transparent', color: '#f85149', border: '1px solid #f85149', borderRadius: '5px', fontSize: '12px', cursor: 'pointer' }}>
+                            <button onClick={() => abrirNuevaTarea(dron.id, 'ALTA')} className="btn" style={{ padding: '6px 10px', marginRight: '6px', backgroundColor: 'transparent', color: '#f85149', border: '1px solid #f85149', borderRadius: '5px', fontSize: '12px', cursor: 'pointer' }}>
                               Reportar falla
+                            </button>
+                            <button onClick={() => eliminarDron(dron)} className="btn" title="Eliminar dron" style={{ padding: '6px 8px', backgroundColor: 'transparent', color: colors.textSecondary, border: `1px solid ${colors.border}`, borderRadius: '5px', fontSize: '12px', cursor: 'pointer' }}>
+                              🗑️
                             </button>
                           </td>
                         </tr>
@@ -1018,6 +1064,9 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
                         </button>
                         <button onClick={() => abrirNuevaTarea(dron.id, 'ALTA')} className="btn" style={{ flex: 1, padding: '8px', backgroundColor: 'transparent', color: '#f85149', border: '1px solid #f85149', borderRadius: '5px', fontSize: '12px', cursor: 'pointer' }}>
                           Reportar falla
+                        </button>
+                        <button onClick={() => eliminarDron(dron)} className="btn" style={{ padding: '8px 10px', backgroundColor: 'transparent', color: colors.textSecondary, border: `1px solid ${colors.border}`, borderRadius: '5px', fontSize: '12px', cursor: 'pointer' }}>
+                          🗑️
                         </button>
                       </div>
                     </div>
@@ -1074,7 +1123,7 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
               <tbody>
                 {usuarios.map((u) => (
                   <tr key={u.id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                    <td style={{ padding: '10px', color: colors.text, fontSize: '13px', fontWeight: 'bold' }}>{u.nombreCompleto || `${u.nombre} ${u.apellido}`}</td>
+                    <td style={{ padding: '10px', color: colors.text, fontSize: '13px', fontWeight: 'bold' }}>{u.nombreCompleto || `${u.grado ? u.grado + ' ' : ''}${u.apellido} ${u.nombre}`}</td>
                     <td style={{ padding: '10px', color: colors.textSecondary, fontSize: '12px' }}>{u.rol}</td>
                     <td style={{ padding: '10px' }}>
                       <input
@@ -1515,7 +1564,7 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
                   {!usuarioSalida?.foto && (eventoDetalle.usuarioSalidaNombre?.charAt(0) || '?')}
                 </div>
                 <div>
-                  <p style={{ margin: 0, color: colors.text, fontSize: '13px' }}>↗️ Sacó: <b>{eventoDetalle.usuarioSalidaNombre}</b>{usuarioSalida?.grado ? ` (${usuarioSalida.grado})` : ''}</p>
+                  <p style={{ margin: 0, color: colors.text, fontSize: '13px' }}>↗️ Sacó: <b>{eventoDetalle.usuarioSalidaNombre}</b></p>
                   <p style={{ margin: 0, color: colors.textTertiary, fontSize: '11px' }}>{new Date(eventoDetalle.fechaSalida).toLocaleString('es-EC')}</p>
                 </div>
               </div>
@@ -1530,7 +1579,7 @@ export default function GestorDronesPage({ seccion }: { seccion: Seccion }) {
                     {!usuarioEntrada?.foto && (eventoDetalle.usuarioEntradaNombre?.charAt(0) || '?')}
                   </div>
                   <div>
-                    <p style={{ margin: 0, color: colors.text, fontSize: '13px' }}>↘️ Entregó: <b>{eventoDetalle.usuarioEntradaNombre}</b>{usuarioEntrada?.grado ? ` (${usuarioEntrada.grado})` : ''}</p>
+                    <p style={{ margin: 0, color: colors.text, fontSize: '13px' }}>↘️ Entregó: <b>{eventoDetalle.usuarioEntradaNombre}</b></p>
                     <p style={{ margin: 0, color: colors.textTertiary, fontSize: '11px' }}>{new Date(eventoDetalle.fechaEntrada).toLocaleString('es-EC')}</p>
                   </div>
                 </div>

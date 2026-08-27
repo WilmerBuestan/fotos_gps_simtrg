@@ -13,6 +13,7 @@ import {
   FiltroPrestamosDto,
 } from '../../../core/domain/repositories/prestamo-dron.repository';
 import { PrestamoDronDomain } from '../../../core/domain/entities/prestamo-dron.entity';
+import { formatearNombreCompleto } from '../../../core/domain/entities/usuario.entity';
 import { PrestamoDronOrmEntity } from '../entities/prestamo-dron.orm-entity';
 
 @Injectable()
@@ -34,8 +35,8 @@ export class PrestamoDronRepositoryImpl implements IPrestamoDronRepository {
       orm.observaciones,
       orm.createdAt,
       orm.dron?.codigoInterno,
-      orm.usuarioSalida ? `${orm.usuarioSalida.nombre} ${orm.usuarioSalida.apellido}` : undefined,
-      orm.usuarioEntrada ? `${orm.usuarioEntrada.nombre} ${orm.usuarioEntrada.apellido}` : undefined,
+      orm.usuarioSalida ? formatearNombreCompleto(orm.usuarioSalida.grado, orm.usuarioSalida.apellido, orm.usuarioSalida.nombre) : undefined,
+      orm.usuarioEntrada ? formatearNombreCompleto(orm.usuarioEntrada.grado, orm.usuarioEntrada.apellido, orm.usuarioEntrada.nombre) : undefined,
     );
   }
 
@@ -54,6 +55,14 @@ export class PrestamoDronRepositoryImpl implements IPrestamoDronRepository {
       relations: ['dron', 'usuarioSalida'],
     });
     return this.toDomain(withRelations!);
+  }
+
+  async findById(id: string): Promise<PrestamoDronDomain | null> {
+    const orm = await this.repo.findOne({
+      where: { id },
+      relations: ['dron', 'usuarioSalida', 'usuarioEntrada'],
+    });
+    return orm ? this.toDomain(orm) : null;
   }
 
   async findPrestamoEnCurso(dronId: string): Promise<PrestamoDronDomain | null> {
@@ -111,5 +120,9 @@ export class PrestamoDronRepositoryImpl implements IPrestamoDronRepository {
 
     const orms = await qb.getMany();
     return orms.map((o) => this.toDomain(o));
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.repo.delete(id);
   }
 }

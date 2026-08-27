@@ -10,6 +10,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -41,6 +42,7 @@ import { ObtenerEstadisticasDronesUseCase } from '../../../../core/use-cases/dro
 import { CrearTareaMantenimientoUseCase } from '../../../../core/use-cases/drones-fisicos/crear-tarea-mantenimiento.use-case';
 import { ObtenerTareasMantenimientoUseCase } from '../../../../core/use-cases/drones-fisicos/obtener-tareas-mantenimiento.use-case';
 import { CompletarTareaMantenimientoUseCase } from '../../../../core/use-cases/drones-fisicos/completar-tarea-mantenimiento.use-case';
+import { EliminarPrestamoDronUseCase } from '../../../../core/use-cases/drones-fisicos/eliminar-prestamo.use-case';
 import {
   CrearDronFisicoDto,
   ActualizarDronFisicoDto,
@@ -67,6 +69,7 @@ export class DronesFisicosController {
     private readonly crearTareaUseCase: CrearTareaMantenimientoUseCase,
     private readonly obtenerTareasUseCase: ObtenerTareasMantenimientoUseCase,
     private readonly completarTareaUseCase: CompletarTareaMantenimientoUseCase,
+    private readonly eliminarPrestamoUseCase: EliminarPrestamoDronUseCase,
   ) {}
 
   @Post('movimiento-dispositivo')
@@ -182,6 +185,19 @@ export class DronesFisicosController {
     });
   }
 
+  @Delete('prestamos/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(RolUsuario.ADMINISTRADOR)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: '[ADMIN] Eliminar un registro del historial de préstamos' })
+  @ApiResponse({ status: 204, description: 'Registro eliminado.' })
+  @ApiResponse({ status: 404, description: 'Registro no encontrado.' })
+  @ApiResponse({ status: 409, description: 'El préstamo está vinculado a un movimiento pendiente ya resuelto.' })
+  async eliminarPrestamo(@Param('id', ParseUUIDPipe) id: string) {
+    await this.eliminarPrestamoUseCase.execute(id);
+  }
+
   @Post(':id/foto')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
@@ -249,5 +265,18 @@ export class DronesFisicosController {
   @ApiOperation({ summary: '[ADMIN/BODEGUERO] Editar un dron físico (datos, tag RFID, estado)' })
   async actualizar(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ActualizarDronFisicoDto) {
     return this.gestionUseCase.actualizar(id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles(RolUsuario.ADMINISTRADOR, RolUsuario.BODEGUERO)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: '[ADMIN/BODEGUERO] Eliminar un dron físico del inventario' })
+  @ApiResponse({ status: 204, description: 'Dron eliminado.' })
+  @ApiResponse({ status: 404, description: 'Dron no encontrado.' })
+  @ApiResponse({ status: 409, description: 'El dron tiene préstamos o tareas de mantenimiento asociadas.' })
+  async eliminar(@Param('id', ParseUUIDPipe) id: string) {
+    await this.gestionUseCase.eliminar(id);
   }
 }

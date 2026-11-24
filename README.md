@@ -185,3 +185,4 @@ Los datos (fotos, eventos, usuarios) **no se pierden** al apagar — quedan guar
 
 - [`simtrg-backend/README.md`](simtrg-backend/README.md) — detalle técnico del backend (arquitectura, roles y permisos, seguridad).
 - [`DOCUMENTACION_TECNICA.md`](DOCUMENTACION_TECNICA.md) — tecnologías usadas, opciones de hosting y hoja de ruta hacia machine learning.
+
